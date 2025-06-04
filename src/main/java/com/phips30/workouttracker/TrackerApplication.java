@@ -1,4 +1,4 @@
-package com.workouttracker.tracker;
+package com.phips30.workouttracker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

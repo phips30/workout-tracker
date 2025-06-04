@@ -1,4 +1,4 @@
-package com.workouttracker.tracker.workouts.rest;
+package com.phips30.workouttracker.workout.rest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -8,10 +8,10 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.workouttracker</groupId>
-	<artifactId>tracker</artifactId>
+	<groupId>com.phips30</groupId>
+	<artifactId>workouttracker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>tracker</name>
+	<name>workouttracker</name>
 	<description>Workout tracking app</description>
 	<url/>
 	<licenses>
@@ -50,6 +50,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.17.0</version>
 		</dependency>
 	</dependencies>
 

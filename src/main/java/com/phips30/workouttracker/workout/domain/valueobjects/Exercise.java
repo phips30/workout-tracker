@@ -3,8 +3,12 @@ package com.phips30.workouttracker.workout.domain.valueobjects;
 public class Exercise {
     private String name;
 
-    public Exercise(String name) {
+    private Exercise(String name) {
         this.setName(name);
+    }
+
+    public static Exercise of(String name) {
+        return new Exercise(name);
     }
 
     public void setName(String name) {

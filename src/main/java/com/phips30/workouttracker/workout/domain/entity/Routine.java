@@ -61,4 +61,8 @@ public class Routine {
     public String getName() {
         return this.name;
     }
+
+    public void addWorkouts(List<Workout> workouts) {
+        this.workouts.addAll(workouts);
+    }
 }

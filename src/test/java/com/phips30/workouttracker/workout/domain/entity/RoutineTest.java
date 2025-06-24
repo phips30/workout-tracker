@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RoutineTest {
 
     private final String routineName = "CVP";
+    private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
             Exercise.of("Burpees"),
             Exercise.of("Mountain climbers"),
@@ -28,6 +29,7 @@ class RoutineTest {
     public void initRoutineWithProperValues() {
         Routine firstAmrapRoutine = Routine.of(
                 routineName,
+                routineType,
                 exercises,
                 repetitions
         );
@@ -41,8 +43,9 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoName_throwsException() {
         try {
-            Routine firstAmrapRoutine = Routine.of(
+            Routine.of(
                     null,
+                    routineType,
                     List.of(),
                     List.of()
             );
@@ -55,8 +58,9 @@ class RoutineTest {
     @Test
     public void initRoutineWithEmptyName_throwsException() {
         try {
-            Routine firstAmrapRoutine = Routine.of(
+            Routine.of(
                     null,
+                    routineType,
                     List.of(),
                     List.of()
             );
@@ -67,10 +71,26 @@ class RoutineTest {
     }
 
     @Test
+    public void initRoutineWithNoRoutineType_throwsException() {
+        try {
+            Routine.of(
+                    routineName,
+                    null,
+                    List.of(),
+                    List.of()
+            );
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("RoutineType is null", e.getMessage());
+        }
+    }
+
+    @Test
     public void initRoutineWithNoExercises_throwsException() {
         try {
-            Routine firstAmrapRoutine = Routine.of(
+            Routine.of(
                     routineName,
+                    routineType,
                     List.of(),
                     List.of()
             );
@@ -83,8 +103,9 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoRepetitions_throwsException() {
         try {
-            Routine firstAmrapRoutine = Routine.of(
+            Routine.of(
                     routineName,
+                    routineType,
                     exercises,
                     List.of()
             );
@@ -97,8 +118,9 @@ class RoutineTest {
     @Test
     public void initRoutineWithNotMatchingExercisesAndRepetitions_throwsException() {
         try {
-            Routine firstAmrapRoutine = Routine.of(
+            Routine.of(
                     routineName,
+                    routineType,
                     exercises,
                     List.of(Repetition.of(10))
             );

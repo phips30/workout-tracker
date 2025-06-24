@@ -3,14 +3,16 @@ package com.phips30.workouttracker.workout.domain.valueobjects;
 import java.time.Duration;
 
 public class Round {
-    private int round;
-    private Duration duration;
+    private final Duration duration;
 
-    public Round(int round, Duration duration) {
+    public Round(Duration duration) {
         if(duration == null) {
             throw new IllegalArgumentException("Duration is null");
         }
-        this.round = round;
         this.duration = duration;
+    }
+
+    public Duration getDuration() {
+        return duration;
     }
 }

@@ -6,6 +6,8 @@ import com.phips30.workouttracker.workout.domain.entity.Workout;
 import java.util.List;
 import java.util.Optional;
 
-public interface WorkoutRepository {
-    List<Workout> loadWorkoutsForRoutine(Routine routine);
+public interface RoutineRepository {
+    Optional<Routine> loadRoutine(String name);
+    boolean exists(String name);
+    void saveRoutine(Routine routine);
 }

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: workout-tracker
+  profiles:
+    active: "development"
+
+database:
+  csv:
+    filepath: ./workout-tracker-db.csv

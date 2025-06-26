@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.infrastructure.csvdb;
+package com.phips30.workouttracker.workout.infrastructure.database.csv;
 
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;

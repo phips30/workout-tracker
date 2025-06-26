@@ -36,9 +36,9 @@ public class RoutineController {
 
     @GetMapping("/{name}")
     @ResponseBody
-    public Routine getRoutine(@PathVariable("name") String routineName) {
+    public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) {
         try {
-            return loadRoutineUseCase.loadRoutineWithWorkouts(routineName);
+            return ResponseEntity.ok(loadRoutineUseCase.loadRoutineWithWorkouts(routineName));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

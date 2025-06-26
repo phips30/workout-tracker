@@ -2,9 +2,7 @@ package com.phips30.workouttracker.workout.domain.usecase;
 
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
-import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
-import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import lombok.Builder;

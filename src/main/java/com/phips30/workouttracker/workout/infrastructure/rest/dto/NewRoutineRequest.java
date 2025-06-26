@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.rest.dto;
+package com.phips30.workouttracker.workout.infrastructure.rest.dto;
 
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import lombok.Value;

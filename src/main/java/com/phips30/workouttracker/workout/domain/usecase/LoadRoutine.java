@@ -17,14 +17,14 @@ public class LoadRoutine {
         this.workoutRepository = workoutRepository;
     }
 
-    public Routine loadRoutineWithWorkouts(String routineName) {
+    public Routine loadRoutineWithWorkouts(String routineName) throws RoutineNotFoundException {
         return routineRepository.loadRoutine(routineName)
                 .map(routine -> {
                     List<Workout> workoutsForRoutine = workoutRepository.loadWorkoutsForRoutine(routine);
                     routine.addWorkouts(workoutsForRoutine);
                     return routine;
                 })
-                .orElseThrow(() -> new RuntimeException("Routine not found"));
+                .orElseThrow(() -> new RoutineNotFoundException(routineName));
     }
 
 }

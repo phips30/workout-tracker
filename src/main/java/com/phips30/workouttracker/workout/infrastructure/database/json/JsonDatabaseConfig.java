@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.infrastructure.database.csv;
+package com.phips30.workouttracker.workout.infrastructure.database.json;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -7,18 +7,18 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "database")
 @EnableConfigurationProperties
-public class CsvDatabaseConfig {
-    private Csv csv;
+public class JsonDatabaseConfig {
+    private Json json;
 
-    public Csv getCsv() {
-        return csv;
+    public Json getJson() {
+        return json;
     }
 
-    public void setCsv(Csv csv) {
-        this.csv = csv;
+    public void setJson(Json json) {
+        this.json = json;
     }
 
-    public static class Csv {
+    public static class Json {
         private String filepath;
 
         public String getFilepath() {

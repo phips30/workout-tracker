@@ -5,5 +5,5 @@ spring:
     active: "development"
 
 database:
-  csv:
-    filepath: ./workout-tracker-db.csv
+  json:
+    filepath: ./workout-tracker-db.json

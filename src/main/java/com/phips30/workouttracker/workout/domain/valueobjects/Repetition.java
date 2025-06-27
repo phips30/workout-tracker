@@ -20,4 +20,12 @@ public class Repetition {
         }
         this.number = number;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getNumber() {
+        return number;
+    }
 }

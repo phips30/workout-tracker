@@ -1,15 +1,46 @@
 package com.phips30.workouttracker.workout.infrastructure.database.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class RoutineRepositoryImpl implements RoutineRepository {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
+
     @Override
     public Optional<Routine> loadRoutine(String name) {
+        String jsonRoutine = "{" +
+                "  \"name\": \"CVP\"," +
+                "  \"routineType\": \"AMRAP\"," +
+                "  \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
+                "  \"repetitions\": [10, 40, 10, 10]" +
+                "}";
+
+        try {
+            RoutineDbEntity routineDbEntity = objectMapper.readValue(jsonRoutine, RoutineDbEntity.class);
+            return Optional.of(Routine.of(
+                    routineDbEntity.getName(),
+                    RoutineType.valueOf(routineDbEntity.getRoutineType()),
+                    routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
+                    routineDbEntity.getRepetitions().stream().map(Repetition::of).toList())
+            );
+        } catch (JsonProcessingException e) {
+            logger.error("Routine {} not found", name);
+        }
         return Optional.empty();
     }
 
@@ -21,5 +52,44 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     @Override
     public void saveRoutine(Routine routine) {
 
+    }
+
+    private static class RoutineDbEntity {
+        private String name;
+        private String routineType;
+        private List<String> exercises;
+        private List<Integer> repetitions;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getRoutineType() {
+            return routineType;
+        }
+
+        public void setRoutineType(String routineType) {
+            this.routineType = routineType;
+        }
+
+        public List<String> getExercises() {
+            return exercises;
+        }
+
+        public void setExercises(List<String> exercises) {
+            this.exercises = exercises;
+        }
+
+        public List<Integer> getRepetitions() {
+            return repetitions;
+        }
+
+        public void setRepetitions(List<Integer> repetitions) {
+            this.repetitions = repetitions;
+        }
     }
 }

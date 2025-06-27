@@ -65,4 +65,8 @@ public class Routine {
     public void addWorkouts(List<Workout> workouts) {
         this.workouts.addAll(workouts);
     }
+
+    public RoutineType getRoutineType() {
+        return routineType;
+    }
 }

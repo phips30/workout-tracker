@@ -27,7 +27,7 @@ public class RoutineController {
     @PostMapping
     public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) {
         try {
-            createRoutineUseCase.execute(new CreateRoutine.InputValues());
+            //createRoutineUseCase.execute(new CreateRoutine.InputValues());
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

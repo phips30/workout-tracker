@@ -32,12 +32,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
         try {
             RoutineDbEntity routineDbEntity = objectMapper.readValue(jsonRoutine, RoutineDbEntity.class);
-            return Optional.of(Routine.of(
-                    routineDbEntity.getName(),
-                    RoutineType.valueOf(routineDbEntity.getRoutineType()),
-                    routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
-                    routineDbEntity.getRepetitions().stream().map(Repetition::of).toList())
-            );
+            return Optional.of(convertDbEntityToDomain(routineDbEntity));
         } catch (JsonProcessingException e) {
             logger.error("Routine {} not found", name);
         }
@@ -51,7 +46,26 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     @Override
     public void saveRoutine(Routine routine) {
+        RoutineDbEntity routineToSave = convertDomainToDbEntity(routine);
+        System.out.println(routineToSave);
+    }
 
+    private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
+        RoutineDbEntity routineToSave = new RoutineDbEntity();
+        routineToSave.setName(routine.getName());
+        routineToSave.setRoutineType(routine.getName());
+        routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
+        routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
+        return routineToSave;
+    }
+
+    private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity) {
+        return Routine.of(
+                routineDbEntity.getName(),
+                RoutineType.valueOf(routineDbEntity.getRoutineType()),
+                routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
+                routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
+        );
     }
 
     private static class RoutineDbEntity {

@@ -15,7 +15,7 @@ public class Repetition {
     }
 
     public void setNumber(int number) {
-        if(number <= 1) {
+        if(number <= 0) {
             throw new IllegalArgumentException("Number must be greater or equal to 1");
         }
         this.number = number;

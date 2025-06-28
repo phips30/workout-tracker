@@ -41,7 +41,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     @Override
     public boolean exists(String name) {
-        return false;
+        return loadRoutine(name).isPresent();
     }
 
     @Override

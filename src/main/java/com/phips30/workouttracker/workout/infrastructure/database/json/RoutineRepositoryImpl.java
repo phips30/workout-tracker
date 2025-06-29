@@ -1,6 +1,5 @@
 package com.phips30.workouttracker.workout.infrastructure.database.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
@@ -11,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -21,20 +23,25 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
 
-    @Override
-    public Optional<Routine> loadRoutine(String name) {
-        String jsonRoutine = "{" +
-                "  \"name\": \"CVP\"," +
-                "  \"routineType\": \"AMRAP\"," +
-                "  \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
-                "  \"repetitions\": [10, 40, 10, 10]" +
-                "}";
+    private final JsonDatabaseConfig jsonDatabaseConfig;
 
+    public RoutineRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
+        this.jsonDatabaseConfig = jsonDatabaseConfig;
+    }
+
+    @Override
+    public Optional<Routine> loadRoutine(String routineName) {
         try {
-            RoutineDbEntity routineDbEntity = objectMapper.readValue(jsonRoutine, RoutineDbEntity.class);
-            return Optional.of(convertDbEntityToDomain(routineDbEntity));
-        } catch (JsonProcessingException e) {
-            logger.error("Routine {} not found", name);
+            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
+
+            return routineDbEntities.stream()
+                    .filter(routine -> Objects.equals(routine.getName(), routineName))
+                    .findFirst()
+                    .map(this::convertDbEntityToDomain);
+        } catch (IOException e) {
+            logger.error("Error parsing the json file for routine name '{}'", routineName);
         }
         return Optional.empty();
     }

@@ -41,7 +41,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                     .findFirst()
                     .map(this::convertDbEntityToDomain);
         } catch (IOException e) {
-            logger.error("Error parsing the json file for routine name '{}'", routineName);
+            logger.error("Error parsing the json file for routine name '{}'", routineName, e);
         }
         return Optional.empty();
     }

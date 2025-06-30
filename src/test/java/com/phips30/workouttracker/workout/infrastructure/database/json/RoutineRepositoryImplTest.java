@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.phips30.workouttracker.RandomData.*;
 import static org.mockito.Mockito.when;
@@ -32,14 +33,10 @@ class RoutineRepositoryImplTest {
     private final String routineName = shortString();
     private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
-            Exercise.of("Burpees"),
-            Exercise.of("Mountain climbers"),
-            Exercise.of("4-Count burpees"),
-            Exercise.of("Jumping jacks")
+            Exercise.of(shortString()),
+            Exercise.of(shortString())
     );
     private final List<Repetition> repetitions = List.of(
-            Repetition.of(positiveDigit()),
-            Repetition.of(positiveDigit()),
             Repetition.of(positiveDigit()),
             Repetition.of(positiveDigit())
     );
@@ -76,13 +73,52 @@ class RoutineRepositoryImplTest {
         String jsonContent = String.format("[{" +
                 "  \"name\": \"%s\"," +
                 "  \"routineType\": \"AMRAP\"," +
-                "  \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
-                "  \"repetitions\": [10, 40, 10, 10]" +
-                "}]", routineName);
+                "  \"exercises\": [%s]," +
+                "  \"repetitions\": [%s]" +
+                "}]",
+                routineName,
+                exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
+                repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
         Files.write(tempFile.toPath(), jsonContent.getBytes());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
         Assertions.assertTrue(routineFromDb.isPresent());
+        Assertions.assertEquals(routineName, routineFromDb.get().getName());
+        Assertions.assertEquals(
+                exercises.stream().map(Exercise::getName).toList(),
+                routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
+        Assertions.assertEquals(
+                repetitions.stream().map(Repetition::getNumber).toList(),
+                routineFromDb.get().getRepetitions().stream().map(Repetition::getNumber).toList());
+    }
+
+    @Test
+    void loadRoutine_existsInJsonWithMultipleRoutines_returnsRoutine() throws IOException {
+        String jsonContent = String.format("[{" +
+                        " \"name\": \"OtherRoutine\"," +
+                        " \"routineType\": \"AMRAP\"," +
+                        " \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
+                        " \"repetitions\": [10, 40, 10, 10]" +
+                        " },{" +
+                        " \"name\": \"%s\"," +
+                        " \"routineType\": \"AMRAP\"," +
+                        " \"exercises\": [%s]," +
+                        " \"repetitions\": [%s]" +
+                        "}]",
+                routineName,
+                exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
+                repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
+        Files.write(tempFile.toPath(), jsonContent.getBytes());
+
+        Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
+        Assertions.assertTrue(routineFromDb.isPresent());
+        Assertions.assertEquals(routineName, routineFromDb.get().getName());
+        Assertions.assertEquals(
+                exercises.stream().map(Exercise::getName).toList(),
+                routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
+        Assertions.assertEquals(
+                repetitions.stream().map(Repetition::getNumber).toList(),
+                routineFromDb.get().getRepetitions().stream().map(Repetition::getNumber).toList());
     }
 
     @Test

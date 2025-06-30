@@ -4,7 +4,6 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.valueobjects.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +20,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.phips30.workouttracker.RandomData.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RoutineRepositoryImplTest {
-
 
     @InjectMocks
     private RoutineRepositoryImpl routineRepository;
@@ -41,6 +41,23 @@ class RoutineRepositoryImplTest {
             Repetition.of(positiveDigit())
     );
 
+    private final String routineToLookup = String.format("{" +
+            "  \"name\": \"%s\"," +
+            "  \"routineType\": \"AMRAP\"," +
+            "  \"exercises\": [%s]," +
+            "  \"repetitions\": [%s]" +
+            "}",
+            routineName,
+            exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
+            repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
+
+    private final String dummyRoutine = "{" +
+            " \"name\": \"OtherRoutine\"," +
+            " \"routineType\": \"AMRAP\"," +
+            " \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
+            " \"repetitions\": [10, 40, 10, 10]" +
+            " }";
+
     @Mock
     private JsonDatabaseConfig jsonDatabaseConfig;
 
@@ -50,79 +67,75 @@ class RoutineRepositoryImplTest {
     @TempDir
     File tempFolder;
 
-    File tempFile = new File(tempFolder, "workout-test-db.json");
-
+    File emptyWorkoutDbFile = new File(tempFolder, "workout-test-empty-db.json");
+    File singleWorkoutDbFile = new File(tempFolder, "workout-test-single-db.json");
+    File multipleWorkoutDbFile = new File(tempFolder, "workout-test-multiple-db.json");
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         when(jsonDatabaseConfig.getJson()).thenReturn(json);
-        when(json.getFilepath()).thenReturn(tempFile.getAbsolutePath());
+
+        String emptyWorkoutDb = "[]";
+        Files.write(emptyWorkoutDbFile.toPath(), emptyWorkoutDb.getBytes());
+
+        String singleWorkoutDb = "[" + routineToLookup + "]";
+        Files.write(singleWorkoutDbFile.toPath(), singleWorkoutDb.getBytes());
+
+        String multipleWorkoutDb =  "[" +
+                dummyRoutine + ", " +
+                routineToLookup +
+                "]";
+        Files.write(multipleWorkoutDbFile.toPath(), multipleWorkoutDb.getBytes());
     }
 
     @Test
-    void loadRoutine_noRoutinesInJson_returnsNothing() throws IOException {
-        String jsonContent = "[]";
-        Files.write(tempFile.toPath(), jsonContent.getBytes());
+    void loadRoutine_noRoutinesInJson_returnsNothing() {
+        when(json.getFilepath()).thenReturn(emptyWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
-        Assertions.assertFalse(routineFromDb.isPresent());
+        assertFalse(routineFromDb.isPresent());
     }
 
     @Test
-    void loadRoutine_existsInJsonAsSingleRoutine_returnsRoutine() throws IOException {
-        String jsonContent = String.format("[{" +
-                "  \"name\": \"%s\"," +
-                "  \"routineType\": \"AMRAP\"," +
-                "  \"exercises\": [%s]," +
-                "  \"repetitions\": [%s]" +
-                "}]",
-                routineName,
-                exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
-                repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
-        Files.write(tempFile.toPath(), jsonContent.getBytes());
+    void loadRoutine_existsInJsonAsSingleRoutine_returnsRoutine() {
+        when(json.getFilepath()).thenReturn(singleWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
-        Assertions.assertTrue(routineFromDb.isPresent());
-        Assertions.assertEquals(routineName, routineFromDb.get().getName());
-        Assertions.assertEquals(
+        assertTrue(routineFromDb.isPresent());
+        assertEquals(routineName, routineFromDb.get().getName());
+        assertEquals(
                 exercises.stream().map(Exercise::getName).toList(),
                 routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
-        Assertions.assertEquals(
+        assertEquals(
                 repetitions.stream().map(Repetition::getNumber).toList(),
                 routineFromDb.get().getRepetitions().stream().map(Repetition::getNumber).toList());
     }
 
     @Test
-    void loadRoutine_existsInJsonWithMultipleRoutines_returnsRoutine() throws IOException {
-        String jsonContent = String.format("[{" +
-                        " \"name\": \"OtherRoutine\"," +
-                        " \"routineType\": \"AMRAP\"," +
-                        " \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
-                        " \"repetitions\": [10, 40, 10, 10]" +
-                        " },{" +
-                        " \"name\": \"%s\"," +
-                        " \"routineType\": \"AMRAP\"," +
-                        " \"exercises\": [%s]," +
-                        " \"repetitions\": [%s]" +
-                        "}]",
-                routineName,
-                exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
-                repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
-        Files.write(tempFile.toPath(), jsonContent.getBytes());
+    void loadRoutine_existsInJsonWithMultipleRoutines_returnsRoutine() {
+        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
-        Assertions.assertTrue(routineFromDb.isPresent());
-        Assertions.assertEquals(routineName, routineFromDb.get().getName());
-        Assertions.assertEquals(
+        assertTrue(routineFromDb.isPresent());
+        assertEquals(routineName, routineFromDb.get().getName());
+        assertEquals(
                 exercises.stream().map(Exercise::getName).toList(),
                 routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
-        Assertions.assertEquals(
+        assertEquals(
                 repetitions.stream().map(Repetition::getNumber).toList(),
                 routineFromDb.get().getRepetitions().stream().map(Repetition::getNumber).toList());
     }
 
     @Test
-    void exists() {
+    void exists_routineDoesNotExist_returnsFalse() {
+        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        assertFalse(routineRepository.exists(shortString()));
+    }
+
+    @Test
+    void exists_routineDoesExist_returnsTrue() {
+        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        assertTrue(routineRepository.exists(routineName));
     }
 
     @Test

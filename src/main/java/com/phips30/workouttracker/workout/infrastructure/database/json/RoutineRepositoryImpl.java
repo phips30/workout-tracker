@@ -48,6 +48,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     @Override
     public boolean exists(String name) {
+        // TODO: just check for name without loading entire object
         return loadRoutine(name).isPresent();
     }
 

@@ -54,8 +54,21 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     @Override
     public void saveRoutine(Routine routine) {
-        RoutineDbEntity routineToSave = convertDomainToDbEntity(routine);
-        System.out.println(routineToSave);
+        if(exists(routine.getName())) {
+            return;
+        }
+
+        try {
+            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
+
+            RoutineDbEntity routineToSave = convertDomainToDbEntity(routine);
+            routineDbEntities.add(routineToSave);
+            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getFilepath()), routineDbEntities);
+        } catch (IOException e) {
+            logger.error("Error adding new routine to database '{}'", routine.getName(), e);
+        }
     }
 
     private RoutineDbEntity convertDomainToDbEntity(Routine routine) {

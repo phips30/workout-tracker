@@ -139,9 +139,11 @@ class RoutineRepositoryImplTest {
     }
 
     @Test
-    void saveRoutine() {
+    void saveRoutine_routineDoesNotYetExist_savesDb() {
+        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+
         Routine routineToSave = Routine.of(
-                routineName,
+                "a new routine",
                 routineType,
                 exercises,
                 repetitions

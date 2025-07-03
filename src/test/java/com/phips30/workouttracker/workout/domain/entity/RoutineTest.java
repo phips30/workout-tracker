@@ -1,6 +1,5 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
-import com.phips30.workouttracker.workout.domain.valueobjects.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.Test;
 

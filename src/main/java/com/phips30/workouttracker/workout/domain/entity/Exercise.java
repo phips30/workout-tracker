@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.domain.valueobjects;
+package com.phips30.workouttracker.workout.domain.entity;
 
 public class Exercise {
     private String name;

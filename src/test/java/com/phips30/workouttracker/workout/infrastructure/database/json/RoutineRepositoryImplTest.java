@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
-import com.phips30.workouttracker.workout.domain.valueobjects.Exercise;
+import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

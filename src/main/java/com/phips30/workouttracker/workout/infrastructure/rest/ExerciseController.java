@@ -1,6 +1,6 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
-import com.phips30.workouttracker.workout.domain.usecase.CreateExerciseUseCase;
+import com.phips30.workouttracker.workout.domain.usecase.ExerciseApplicationService;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,17 +15,17 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/exercise")
 public class ExerciseController {
 
-    private final CreateExerciseUseCase createExerciseUseCase;
+    private final ExerciseApplicationService exerciseApplicationService;
 
     @Autowired
-    public ExerciseController(CreateExerciseUseCase createExerciseUseCase) {
-        this.createExerciseUseCase = createExerciseUseCase;
+    public ExerciseController(ExerciseApplicationService exerciseApplicationService) {
+        this.exerciseApplicationService = exerciseApplicationService;
     }
 
     @PostMapping
     public ResponseEntity<Void> addExercise(@RequestBody NewExerciseRequest exerciseRequest) {
         try {
-            //createExerciseUseCase.execute(new CreateRoutine.InputValues());
+            exerciseApplicationService.createNewExercise(exerciseRequest.getName());
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

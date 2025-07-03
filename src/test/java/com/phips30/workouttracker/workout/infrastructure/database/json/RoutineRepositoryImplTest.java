@@ -68,7 +68,6 @@ class RoutineRepositoryImplTest {
     File tempFolder;
 
     File emptyWorkoutDbFile = new File(tempFolder, "workout-test-empty-db.json");
-    File singleWorkoutDbFile = new File(tempFolder, "workout-test-single-db.json");
     File multipleWorkoutDbFile = new File(tempFolder, "workout-test-multiple-db.json");
 
     @BeforeEach
@@ -77,9 +76,6 @@ class RoutineRepositoryImplTest {
 
         String emptyWorkoutDb = "[]";
         Files.write(emptyWorkoutDbFile.toPath(), emptyWorkoutDb.getBytes());
-
-        String singleWorkoutDb = "[" + routineToLookup + "]";
-        Files.write(singleWorkoutDbFile.toPath(), singleWorkoutDb.getBytes());
 
         String multipleWorkoutDb =  "[" +
                 dummyRoutine + ", " +
@@ -97,22 +93,7 @@ class RoutineRepositoryImplTest {
     }
 
     @Test
-    void loadRoutine_existsInJsonAsSingleRoutine_returnsRoutine() {
-        when(json.getFilepath()).thenReturn(singleWorkoutDbFile.getAbsolutePath());
-
-        Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
-        assertTrue(routineFromDb.isPresent());
-        assertEquals(routineName, routineFromDb.get().getName());
-        assertEquals(
-                exercises.stream().map(Exercise::getName).toList(),
-                routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
-        assertEquals(
-                repetitions.stream().map(Repetition::getNumber).toList(),
-                routineFromDb.get().getRepetitions().stream().map(Repetition::getNumber).toList());
-    }
-
-    @Test
-    void loadRoutine_existsInJsonWithMultipleRoutines_returnsRoutine() {
+    void loadRoutine_existsInJson_returnsRoutine() {
         when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);

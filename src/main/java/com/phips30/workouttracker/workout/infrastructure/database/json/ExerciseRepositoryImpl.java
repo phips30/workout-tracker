@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -41,8 +42,8 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public Exercise create(Exercise exercise) throws Exception {
-        // Todo: Rewrite to return a result object instead of throwing exceptions
+    public Optional<Exercise> create(Exercise exercise) {
+        // Todo: Rewrite to return a result object instead of an optional
         try {
             List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
@@ -51,11 +52,11 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
             ExerciseDbEntity exerciseToSave = convertDomainToDbEntity(exercise);
             exerciseDbEntities.add(exerciseToSave);
             objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), exerciseDbEntities);
-            return exercise;
+            return Optional.of(exercise);
         } catch (IOException e) {
             logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
-            throw new Exception(e);
         }
+        return Optional.empty();
     }
 
     private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {

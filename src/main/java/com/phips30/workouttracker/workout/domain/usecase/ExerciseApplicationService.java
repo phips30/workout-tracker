@@ -2,7 +2,10 @@ package com.phips30.workouttracker.workout.domain.usecase;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import com.phips30.workouttracker.workout.domain.service.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
+
+import java.util.Optional;
 
 public class ExerciseApplicationService {
 
@@ -14,7 +17,7 @@ public class ExerciseApplicationService {
         this.exerciseRepository = exerciseRepository;
     }
 
-    public Exercise createNewExercise(String name) throws Exception {
+    public Optional<Exercise> createNewExercise(String name) throws ExerciseAlreadyExistsException {
         Exercise newExercise = exerciseFactory.of(name);
         return exerciseRepository.create(newExercise);
     }

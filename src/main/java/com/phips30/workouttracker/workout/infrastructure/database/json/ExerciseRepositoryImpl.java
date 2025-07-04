@@ -41,7 +41,8 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public Exercise create(Exercise exercise) {
+    public Exercise create(Exercise exercise) throws Exception {
+        // Todo: Rewrite to return a result object instead of throwing exceptions
         try {
             List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
@@ -53,8 +54,8 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
             return exercise;
         } catch (IOException e) {
             logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
+            throw new Exception(e);
         }
-        return null; // TODO: rework
     }
 
     private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {

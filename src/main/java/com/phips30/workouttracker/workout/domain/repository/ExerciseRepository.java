@@ -5,5 +5,5 @@ import com.phips30.workouttracker.workout.domain.entity.Exercise;
 public interface ExerciseRepository {
     boolean exists(String name);
 
-    Exercise create(Exercise exercise);
+    Exercise create(Exercise exercise) throws Exception;
 }

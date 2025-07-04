@@ -15,7 +15,7 @@ public class ExerciseApplicationService {
         this.exerciseRepository = exerciseRepository;
     }
 
-    public Exercise createNewExercise(String name) throws ExerciseAlreadyExistsException {
+    public Exercise createNewExercise(String name) throws Exception {
         Exercise newExercise = exerciseFactory.of(name);
         return exerciseRepository.create(newExercise);
     }

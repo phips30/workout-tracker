@@ -6,4 +6,5 @@ spring:
 
 database:
   json:
-    filepath: ./workout-tracker-db.json
+    routineFilepath: ./routine-db.json
+    exerciseFilepath: ./exercise-db.json

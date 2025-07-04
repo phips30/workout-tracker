@@ -15,12 +15,8 @@ public class ExerciseApplicationService {
         this.exerciseRepository = exerciseRepository;
     }
 
-    public Exercise createNewExercise(String name) {
-        try {
-            Exercise newExercise = exerciseFactory.of(name);
-            return exerciseRepository.create(newExercise);
-        } catch (ExerciseAlreadyExistsException e) {
-            throw new RuntimeException(e);
-        }
+    public Exercise createNewExercise(String name) throws ExerciseAlreadyExistsException {
+        Exercise newExercise = exerciseFactory.of(name);
+        return exerciseRepository.create(newExercise);
     }
 }

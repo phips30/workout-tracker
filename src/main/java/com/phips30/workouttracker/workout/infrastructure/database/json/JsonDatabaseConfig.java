@@ -19,14 +19,23 @@ public class JsonDatabaseConfig {
     }
 
     public static class Json {
-        private String filepath;
+        private String routineFilepath;
+        private String exerciseFilepath;
 
-        public String getFilepath() {
-            return filepath;
+        public String getRoutineFilepath() {
+            return routineFilepath;
         }
 
-        public void setFilepath(String filepath) {
-            this.filepath = filepath;
+        public void setRoutineFilepath(String routineFilepath) {
+            this.routineFilepath = routineFilepath;
+        }
+
+        public String getExerciseFilepath() {
+            return exerciseFilepath;
+        }
+
+        public void setExerciseFilepath(String exerciseFilepath) {
+            this.exerciseFilepath = exerciseFilepath;
         }
     }
 }

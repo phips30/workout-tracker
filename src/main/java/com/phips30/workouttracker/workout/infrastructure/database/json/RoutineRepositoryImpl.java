@@ -33,7 +33,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     public Optional<Routine> loadRoutine(String routineName) {
         try {
             List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getFilepath()),
+                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
 
             return routineDbEntities.stream()
@@ -60,12 +60,12 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
         try {
             List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getFilepath()),
+                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
 
             RoutineDbEntity routineToSave = convertDomainToDbEntity(routine);
             routineDbEntities.add(routineToSave);
-            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getFilepath()), routineDbEntities);
+            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), routineDbEntities);
         } catch (IOException e) {
             logger.error("Error adding new routine to database '{}'", routine.getName(), e);
         }

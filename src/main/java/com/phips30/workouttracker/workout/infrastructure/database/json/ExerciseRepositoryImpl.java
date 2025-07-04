@@ -1,19 +1,87 @@
 package com.phips30.workouttracker.workout.infrastructure.database.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Repository
 public class ExerciseRepositoryImpl implements ExerciseRepository {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final Logger logger = LoggerFactory.getLogger(ExerciseRepositoryImpl.class);
+
+    private final JsonDatabaseConfig jsonDatabaseConfig;
+
+    public ExerciseRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
+        this.jsonDatabaseConfig = jsonDatabaseConfig;
+    }
     @Override
-    public boolean exists(String name) {
+    public boolean exists(String exerciseName) {
+        try {
+            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+
+            return exerciseDbEntities.stream()
+                    .anyMatch(exercise -> Objects.equals(exercise.getName(), exerciseName));
+        } catch (IOException e) {
+            logger.error("Error parsing the json file for exercise name '{}'", exerciseName, e);
+        }
         return false;
     }
 
     @Override
     public Exercise create(Exercise exercise) {
-        return null;
+        try {
+            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+
+            ExerciseDbEntity exerciseToSave = convertDomainToDbEntity(exercise);
+            exerciseDbEntities.add(exerciseToSave);
+            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), exerciseDbEntities);
+            return exercise;
+        } catch (IOException e) {
+            logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
+        }
+        return null; // TODO: rework
+    }
+
+    private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {
+        ExerciseDbEntity exerciseToSave = new ExerciseDbEntity();
+        exerciseToSave.setId(UUID.randomUUID());
+        exerciseToSave.setName(exercise.getName());
+        return exerciseToSave;
+    }
+
+    private static class ExerciseDbEntity {
+        private UUID id;
+        private String name;
+
+        public UUID getId() {
+            return id;
+        }
+
+        public void setId(UUID id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

@@ -23,7 +23,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
 
     public ExerciseRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
         this.jsonDatabaseConfig = jsonDatabaseConfig;
-        this.exerciseDbFile = new File(jsonDatabaseConfig.getJson().getExerciseFilepath())
+        this.exerciseDbFile = new File(jsonDatabaseConfig.getJson().getExerciseFilepath());
     }
 
     @Override

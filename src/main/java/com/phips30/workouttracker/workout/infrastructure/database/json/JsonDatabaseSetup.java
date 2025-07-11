@@ -17,12 +17,16 @@ public class JsonDatabaseSetup {
 
     @PostConstruct
     public void createJsonFile() throws IOException {
-        File jsonDbFile = new File(jsonDatabaseConfig.getJson().getFilepath());
+        createDbFiles(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()));
+        createDbFiles(new File(jsonDatabaseConfig.getJson().getExerciseFilepath()));
+    }
+
+    private void createDbFiles(File jsonDbFile) throws IOException {
         if (!jsonDbFile.exists()) {
             jsonDbFile.getParentFile().mkdirs();
             jsonDbFile.createNewFile();
 
-            System.out.println("Created json database file: " + jsonDatabaseConfig.getJson().getFilepath());
+            System.out.println("Created json database file: " + jsonDbFile.getAbsolutePath());
 
         }
     }

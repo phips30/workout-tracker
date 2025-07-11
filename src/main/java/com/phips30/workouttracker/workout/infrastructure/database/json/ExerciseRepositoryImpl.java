@@ -9,10 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class ExerciseRepositoryImpl implements ExerciseRepository {
@@ -22,15 +19,22 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     private final Logger logger = LoggerFactory.getLogger(ExerciseRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
+    private final File exerciseDbFile;
 
     public ExerciseRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
         this.jsonDatabaseConfig = jsonDatabaseConfig;
+        this.exerciseDbFile = new File(jsonDatabaseConfig.getJson().getExerciseFilepath())
     }
+
     @Override
     public boolean exists(String exerciseName) {
         try {
+            if (exerciseDbFile.length() == 0) {
+                return false;
+            }
+
             List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
+                    exerciseDbFile,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
 
             return exerciseDbEntities.stream()
@@ -45,13 +49,17 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     public Optional<Exercise> create(Exercise exercise) {
         // Todo: Rewrite to return a result object instead of an optional
         try {
-            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+            List<ExerciseDbEntity> exerciseDbEntities = new ArrayList<>();
+
+            if (exerciseDbFile.length() > 0) {
+                exerciseDbEntities = objectMapper.readValue(
+                        new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+            }
 
             ExerciseDbEntity exerciseToSave = convertDomainToDbEntity(exercise);
             exerciseDbEntities.add(exerciseToSave);
-            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), exerciseDbEntities);
+            objectMapper.writeValue(exerciseDbFile, exerciseDbEntities);
             return Optional.of(exercise);
         } catch (IOException e) {
             logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);

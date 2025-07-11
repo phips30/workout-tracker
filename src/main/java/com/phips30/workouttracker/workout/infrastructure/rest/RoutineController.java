@@ -27,7 +27,12 @@ public class RoutineController {
     @PostMapping
     public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) {
         try {
-            //createRoutineUseCase.execute(new CreateRoutine.InputValues());
+            createRoutineUseCase.execute(CreateRoutine.InputValues.builder()
+                    .withName(routineRequest.getName())
+                    .withRoutineType(routineRequest.getRoutineType())
+                    .withExercises(routineRequest.getExercises())
+                    .withRepetitions(routineRequest.getRepetitions())
+                    .build());
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -35,7 +40,6 @@ public class RoutineController {
     }
 
     @GetMapping("/{name}")
-    @ResponseBody
     public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) {
         try {
             return ResponseEntity.ok(loadRoutineUseCase.loadRoutineWithWorkouts(routineName));

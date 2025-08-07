@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 @Component
@@ -25,6 +26,11 @@ public class JsonDatabaseSetup {
         if (!jsonDbFile.exists()) {
             jsonDbFile.getParentFile().mkdirs();
             jsonDbFile.createNewFile();
+            try (FileWriter writer = new FileWriter(jsonDbFile)) {
+                writer.write("[]");
+            } catch (IOException e) {
+                System.out.println("Error writing to file: " + e.getMessage());
+            }
 
             System.out.println("Created json database file: " + jsonDbFile.getAbsolutePath());
 

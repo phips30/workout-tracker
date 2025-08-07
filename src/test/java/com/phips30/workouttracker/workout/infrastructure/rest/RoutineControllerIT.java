@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
-import com.phips30.workouttracker.workout.testdatagenerator.RoutineFactory;
+import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

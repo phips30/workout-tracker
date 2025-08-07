@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.testdatagenerator;
+package com.phips30.workouttracker.workout.TestDataGenerator;
 
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;

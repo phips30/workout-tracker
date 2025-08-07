@@ -74,7 +74,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
         RoutineDbEntity routineToSave = new RoutineDbEntity();
         routineToSave.setName(routine.getName());
-        routineToSave.setRoutineType(routine.getName());
+        routineToSave.setRoutineType(routine.getRoutineType().toString());
         routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
         routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
         return routineToSave;

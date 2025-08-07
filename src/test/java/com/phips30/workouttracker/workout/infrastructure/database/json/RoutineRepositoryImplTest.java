@@ -86,7 +86,7 @@ class RoutineRepositoryImplTest {
 
     @Test
     void loadRoutine_noRoutinesInJson_returnsNothing() {
-        when(json.getFilepath()).thenReturn(emptyWorkoutDbFile.getAbsolutePath());
+        when(json.getRoutineFilepath()).thenReturn(emptyWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
         assertFalse(routineFromDb.isPresent());
@@ -94,7 +94,7 @@ class RoutineRepositoryImplTest {
 
     @Test
     void loadRoutine_existsInJson_returnsRoutine() {
-        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
         assertTrue(routineFromDb.isPresent());
@@ -109,19 +109,19 @@ class RoutineRepositoryImplTest {
 
     @Test
     void exists_routineDoesNotExist_returnsFalse() {
-        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
         assertFalse(routineRepository.exists(shortString()));
     }
 
     @Test
     void exists_routineDoesExist_returnsTrue() {
-        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
         assertTrue(routineRepository.exists(routineName));
     }
 
     @Test
     void saveRoutine_routineDoesNotYetExist_savesDb() {
-        when(json.getFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
         Routine routineToSave = Routine.of(
                 "a new routine",

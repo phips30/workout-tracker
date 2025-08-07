@@ -18,12 +18,15 @@ public class CreateRoutine {
         this.routineRepository = routineRepository;
     }
 
-    public void execute(InputValues input) throws RoutineAlreadyExistsException {
+    public void execute(String name,
+                        RoutineType type,
+                        List<String> exercises,
+                        List<Integer> repetitions) throws RoutineAlreadyExistsException {
         Routine routine = Routine.of(
-                input.name,
-                input.routineType,
-                input.exercises.stream().map(Exercise::of).toList(),
-                input.repetitions.stream().map(Repetition::of).toList());
+                name,
+                type,
+                exercises.stream().map(Exercise::of).toList(),
+                repetitions.stream().map(Repetition::of).toList());
         if(routineRepository.exists(routine.getName())) {
             throw new RoutineAlreadyExistsException(routine.getName());
         }

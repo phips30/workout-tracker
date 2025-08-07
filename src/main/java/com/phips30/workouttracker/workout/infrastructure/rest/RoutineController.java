@@ -27,12 +27,12 @@ public class RoutineController {
     @PostMapping
     public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) {
         try {
-            createRoutineUseCase.execute(CreateRoutine.InputValues.builder()
-                    .withName(routineRequest.getName())
-                    .withRoutineType(routineRequest.getRoutineType())
-                    .withExercises(routineRequest.getExercises())
-                    .withRepetitions(routineRequest.getRepetitions())
-                    .build());
+            createRoutineUseCase.execute(
+                    routineRequest.name(),
+                    routineRequest.routineType(),
+                    routineRequest.exercises(),
+                    routineRequest.repetitions()
+            );
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

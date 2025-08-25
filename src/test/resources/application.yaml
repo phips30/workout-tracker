@@ -1,0 +1,4 @@
+database:
+  json:
+    routineFilepath: ./routine-test-db.json
+    exerciseFilepath: ./exercise-test-db.json

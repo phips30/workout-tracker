@@ -28,5 +28,6 @@ class RoutineControllerIT {
         ResponseEntity<Routine> getResponse = restTemplate.getForEntity("/api/routine/"  + routine.name(), Routine.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(getResponse.getBody());
+        assertEquals(getResponse.getBody().getName(), routine.name());
     }
 }

@@ -3,8 +3,6 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -76,10 +74,24 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
         return exerciseToSave;
     }
 
-    @Getter
-    @Setter
     private static class ExerciseDbEntity {
         private UUID id;
         private String name;
+
+        public UUID getId() {
+            return id;
+        }
+
+        public void setId(UUID id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

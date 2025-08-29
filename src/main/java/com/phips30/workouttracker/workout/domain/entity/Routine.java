@@ -68,4 +68,15 @@ public class Routine {
     public RoutineType getRoutineType() {
         return routineType;
     }
+
+    @Override
+    public boolean equals(Object anObject) {
+        boolean equalObjects = false;
+
+        if (anObject != null && this.getClass() == anObject.getClass()) {
+            Routine typedObject = (Routine) anObject;
+            equalObjects = this.getName().equals(typedObject.getName());
+        }
+        return equalObjects;
+    }
 }

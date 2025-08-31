@@ -4,7 +4,6 @@ import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
-import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 

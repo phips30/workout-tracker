@@ -4,12 +4,12 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.RoutineAlreadyExistsException;
+import com.phips30.workouttracker.workout.domain.usecase.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -37,11 +37,7 @@ public class RoutineController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) {
-        try {
-            return ResponseEntity.ok(loadRoutineUseCase.loadRoutineWithWorkouts(routineName));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+    public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) throws RoutineNotFoundException {
+        return ResponseEntity.ok(loadRoutineUseCase.loadRoutineWithWorkouts(routineName));
     }
 }

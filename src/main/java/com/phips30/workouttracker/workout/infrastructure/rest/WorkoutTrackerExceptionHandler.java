@@ -1,6 +1,5 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
-import com.phips30.workouttracker.workout.domain.usecase.RoutineAlreadyExistsException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -46,10 +44,9 @@ public class WorkoutTrackerExceptionHandler extends ResponseEntityExceptionHandl
     }
 
     @ExceptionHandler({
-            RoutineAlreadyExistsException.class,
+            Exception.class,
     })
-    ResponseEntity<Object> handleObjectExists(Exception ex, WebRequest request) {
-        String bodyOfResponse = "This should be application specific";
+    ResponseEntity<Object> handleGeneralExceptions(Exception ex, WebRequest request) {
         return super.handleExceptionInternal(ex, new ErrorBody(ex.getMessage()),
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }

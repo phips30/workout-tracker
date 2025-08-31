@@ -13,8 +13,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RoutineController.class)
@@ -32,23 +33,27 @@ class RoutineControllerTest {
     public void addRoutine_doesNotExist_addedToDatabase_returns201() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         mvc.perform(
-                post("/api/routine")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(routine)))
+                        post("/api/routine")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(routine)))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    public void addRoutine_alreadyExists_returns400() throws Exception {
+    public void addRoutine_causesException_returns400() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
-        doThrow(new RuntimeException())
-                .when(createRoutineUseCase)
+        doAnswer((invocation) -> {
+            throw new Exception(routine.name());
+        }).when(createRoutineUseCase)
                 .execute(any(), any(), any(), any());
 
-        mvc.perform(
-                post("/api/routine")
+        mvc.perform(post("/api/routine")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(routine)))
-                .andExpect(status().isBadRequest());
+                        .content(new ObjectMapper().writeValueAsString(routine))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").isNotEmpty());
     }
+
 }

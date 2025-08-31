@@ -3,6 +3,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
+import com.phips30.workouttracker.workout.domain.usecase.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,18 +26,14 @@ public class RoutineController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) {
-        try {
-            createRoutineUseCase.execute(
-                    routineRequest.name(),
-                    routineRequest.routineType(),
-                    routineRequest.exercises(),
-                    routineRequest.repetitions()
-            );
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+    public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) throws RoutineAlreadyExistsException {
+        createRoutineUseCase.execute(
+                routineRequest.name(),
+                routineRequest.routineType(),
+                routineRequest.exercises(),
+                routineRequest.repetitions()
+        );
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/{name}")

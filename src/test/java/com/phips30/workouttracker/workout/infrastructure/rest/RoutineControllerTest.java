@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
+import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
@@ -12,8 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,4 +61,20 @@ class RoutineControllerTest {
                 .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
+    @Test
+    public void getRoutine_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
+        NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
+        Routine routineEntity = RoutineFactory.createRoutine(routine.name()).build();
+
+        when(loadRoutineUseCase.loadRoutineWithWorkouts(routine.name()))
+                .thenReturn(routineEntity);
+
+        mvc.perform(get("/api/routine/" + routine.name())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(routineEntity.getName()))
+                .andExpect(jsonPath("$.routineType").value(routineEntity.getRoutineType().toString()))
+                .andExpect(jsonPath("$.exercises", hasSize(2)))
+                .andExpect(jsonPath("$.repetitions", hasSize(2)));
+    }
 }

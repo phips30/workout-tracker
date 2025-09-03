@@ -5,7 +5,7 @@ import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
 
-import java.util.List;
+import java.util.Set;
 
 public class LoadRoutine {
 
@@ -20,7 +20,7 @@ public class LoadRoutine {
     public Routine loadRoutineWithWorkouts(String routineName) throws RoutineNotFoundException {
         return routineRepository.loadRoutine(routineName)
                 .map(routine -> {
-                    List<Workout> workoutsForRoutine = workoutRepository.loadWorkoutsForRoutine(routine);
+                    Set<Workout> workoutsForRoutine = workoutRepository.loadWorkoutsForRoutine(routine);
                     routine.addWorkouts(workoutsForRoutine);
                     return routine;
                 })

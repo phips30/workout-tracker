@@ -2,16 +2,14 @@ package com.phips30.workouttracker.workout.domain.entity;
 
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Routine {
     private final String name;
     private final RoutineType routineType;
     private final List<Exercise> exercises;
     private final List<Repetition> repetitions;
-    private final List<Workout> workouts;
+    private final Set<Workout> workouts;
 
     private Routine(String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
         if (name == null || name.trim().isEmpty()) {
@@ -34,7 +32,7 @@ public class Routine {
         this.routineType = routineType;
         this.exercises = exercises;
         this.repetitions = repetitions;
-        this.workouts = new ArrayList<>();
+        this.workouts = new HashSet<>();
     }
 
     public static Routine of(
@@ -53,16 +51,20 @@ public class Routine {
         return Collections.unmodifiableList(this.repetitions);
     }
 
-    public List<Workout> getWorkouts() {
-        return Collections.unmodifiableList(this.workouts);
+    public Set<Workout> getWorkouts() {
+        return Collections.unmodifiableSet(this.workouts);
     }
 
     public String getName() {
         return this.name;
     }
 
-    public void addWorkouts(List<Workout> workouts) {
+    public void addWorkouts(Set<Workout> workouts) {
         this.workouts.addAll(workouts);
+    }
+
+    public void addWorkout(Workout workout) {
+        this.workouts.add(workout);
     }
 
     public RoutineType getRoutineType() {

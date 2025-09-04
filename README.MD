@@ -23,11 +23,26 @@ a high degree of customization, while also ensuring the security and privacy of 
 ### Target architecture
 ![Target Architecture](architecture/target-architecture.drawio.png)
 
-### MVP Architecture
-To get started quickly, a MVP architecture should contain only the most basic
-components required to make the app useful, without yet thinking about
-a proper storage or analytics component.
-Therefore, the database and analytics components will be fully ignored at the moment. 
-Priority is all about being able to send the workout data from the phone, 
-recorded with the timer app, to the server. Storing of the data will be done in json files.
+### Minimum viable product
+The MVP of the workout tracking app is currently in the development stage. 
+The goal of the MVP is to provide a basic implementation of the app's core functionality, 
+focusing on tracking workouts and storing data locally.
+
+**Architecture**
+
+The app's architecture is designed to be modular, scalable, and maintainable. 
+The backend is written purely in Java, with a focus on separation of concerns and clear layering. 
+The architecture consists of the following layers:
+
+ - Domain Layer: This layer represents the business logic of the app, where the core domain models and behaviors are defined.
+ - Application Layer: This layer acts as an interface between the domain layer and the infrastructure layer, defining the use cases and interactions.
+ - Infrastructure Layer: This layer is responsible for data storage and retrieval. Currently, data is stored in simple JSON files.
+ - Interface Layer: This layer provides the RESTful API interface to the app, built using Spring Boot.
+
+**Technology Stack**
+
+ - Backend: Java
+ - Framework: Spring Boot
+ - Data Storage: JSON files
+
 ![MVP Architecture](architecture/mvp-architecture.drawio.png)

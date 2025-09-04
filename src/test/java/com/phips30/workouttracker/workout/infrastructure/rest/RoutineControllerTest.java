@@ -64,7 +64,7 @@ class RoutineControllerTest {
     public void getRoutine_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
 
-        when(loadRoutineUseCase.loadRoutineWithWorkouts(routine.getName()))
+        when(loadRoutineUseCase.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
         mvc.perform(get("/api/routine/" + routine.getName())
@@ -82,7 +82,7 @@ class RoutineControllerTest {
         doAnswer((invocation) -> {
             throw new Exception(routine.name());
         }).when(loadRoutineUseCase)
-                .loadRoutineWithWorkouts(routine.name());
+                .loadRoutine(routine.name());
 
         mvc.perform(get("/api/routine/" + routine.name())
                         .accept(MediaType.APPLICATION_JSON))

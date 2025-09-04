@@ -38,6 +38,6 @@ public class RoutineController {
 
     @GetMapping("/{name}")
     public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) throws RoutineNotFoundException {
-        return ResponseEntity.ok(loadRoutineUseCase.loadRoutineWithWorkouts(routineName));
+        return ResponseEntity.ok(loadRoutineUseCase.loadRoutine(routineName));
     }
 }

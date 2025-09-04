@@ -2,7 +2,6 @@ package com.phips30.workouttracker.workout.infrastructure.configuration;
 
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
-import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
 import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.ExerciseApplicationService;
@@ -19,8 +18,8 @@ public class UseCaseSetup {
     }
 
     @Bean
-    public LoadRoutine loadRoutineUseCase(RoutineRepository routineRepository, WorkoutRepository workoutRepository) {
-        return new LoadRoutine(routineRepository, workoutRepository);
+    public LoadRoutine loadRoutineUseCase(RoutineRepository routineRepository) {
+        return new LoadRoutine(routineRepository);
     }
 
     @Bean

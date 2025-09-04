@@ -8,6 +8,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Aggregate root workout
+ */
 public class Workout {
     private final LocalDateTime startedAt;
     private final LocalDateTime completedAt;

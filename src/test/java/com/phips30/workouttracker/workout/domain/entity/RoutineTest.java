@@ -36,7 +36,6 @@ class RoutineTest {
         assertEquals(routineName, firstAmrapRoutine.getName());
         assertEquals(exercises.size(), firstAmrapRoutine.getExercises().size());
         assertEquals(repetitions.size(), firstAmrapRoutine.getRepetitions().size());
-        assertEquals(0, firstAmrapRoutine.getWorkouts().size());
     }
 
     @Test

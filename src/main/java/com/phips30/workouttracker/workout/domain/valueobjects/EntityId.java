@@ -10,6 +10,10 @@ public final class EntityId {
         this.id = Objects.requireNonNull(id);
     }
 
+    public static EntityId generate() {
+        return new EntityId(UUID.randomUUID());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -26,9 +30,5 @@ public final class EntityId {
     @Override
     public String toString() {
         return id.toString();
-    }
-
-    public static EntityId generate() {
-        return new EntityId(UUID.randomUUID());
     }
 }

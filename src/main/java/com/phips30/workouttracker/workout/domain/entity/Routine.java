@@ -1,5 +1,6 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 
 import java.util.*;
@@ -8,12 +9,16 @@ import java.util.*;
  * Aggregate root routine
  */
 public class Routine {
+    private final EntityId id;
     private final String name;
     private final RoutineType routineType;
     private final List<Exercise> exercises;
     private final List<Repetition> repetitions;
 
-    private Routine(String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
+    private Routine(EntityId id, String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
+        if (id == null) {
+            throw new IllegalArgumentException("Entity id is null");
+        }
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Routine name is null or empty");
         }
@@ -30,18 +35,28 @@ public class Routine {
             throw new IllegalArgumentException("Each exercise must have a corresponding repetition");
         }
 
+        this.id = id;
         this.name = name;
         this.routineType = routineType;
         this.exercises = exercises;
         this.repetitions = repetitions;
     }
 
-    public static Routine of(
+    public static Routine createNew(
             String name,
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(name, routineType, exercises, repetitions);
+        return new Routine(EntityId.generate(), name, routineType, exercises, repetitions);
+    }
+
+    public static Routine of(
+            EntityId id,
+            String name,
+            RoutineType routineType,
+            List<Exercise> exercises,
+            List<Repetition> repetitions) {
+        return new Routine(id, name, routineType, exercises, repetitions);
     }
 
     public List<Exercise> getExercises() {
@@ -61,13 +76,27 @@ public class Routine {
     }
 
     @Override
-    public boolean equals(Object anObject) {
+    public boolean equals(Object otherObject) {
         boolean equalObjects = false;
 
-        if (anObject != null && this.getClass() == anObject.getClass()) {
-            Routine typedObject = (Routine) anObject;
-            equalObjects = this.getName().equals(typedObject.getName());
+        if (otherObject != null && this.getClass() == otherObject.getClass()) {
+            Routine routine = (Routine) otherObject;
+            equalObjects = this.id.equals(routine.id);
         }
         return equalObjects;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Routine{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", routineType=" + routineType +
+                '}';
     }
 }

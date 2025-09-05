@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.web.client.RootUriRequestExpectationManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,7 +124,7 @@ class RoutineRepositoryImplTest {
     void saveRoutine_routineDoesNotYetExist_savesDb() {
         when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
-        Routine routineToSave = Routine.of(
+        Routine routineToSave = Routine.createNew(
                 "a new routine",
                 routineType,
                 exercises,

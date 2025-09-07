@@ -3,6 +3,7 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ class RoutineRepositoryImplTest {
     );
 
     private final String routineToLookup = String.format("{" +
+            " \"id\": \"" + randomUUID() + "\"," +
             "  \"name\": \"%s\"," +
             "  \"routineType\": \"AMRAP\"," +
             "  \"exercises\": [%s]," +
@@ -52,6 +54,7 @@ class RoutineRepositoryImplTest {
             repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
 
     private final String dummyRoutine = "{" +
+            " \"id\": \"" + randomUUID() + "\"," +
             " \"name\": \"OtherRoutine\"," +
             " \"routineType\": \"AMRAP\"," +
             " \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
@@ -124,6 +127,7 @@ class RoutineRepositoryImplTest {
         when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
 
         Routine routineToSave = Routine.of(
+                EntityId.generate(),
                 "a new routine",
                 routineType,
                 exercises,

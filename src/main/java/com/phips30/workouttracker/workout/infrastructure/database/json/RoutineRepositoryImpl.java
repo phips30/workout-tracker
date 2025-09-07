@@ -5,6 +5,7 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class RoutineRepositoryImpl implements RoutineRepository {
@@ -73,6 +75,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
         RoutineDbEntity routineToSave = new RoutineDbEntity();
+        routineToSave.setId(routine.getId().getId());
         routineToSave.setName(routine.getName());
         routineToSave.setRoutineType(routine.getRoutineType().toString());
         routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
@@ -82,6 +85,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity) {
         return Routine.of(
+                new EntityId(routineDbEntity.getId()),
                 routineDbEntity.getName(),
                 RoutineType.valueOf(routineDbEntity.getRoutineType()),
                 routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
@@ -90,10 +94,19 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     private static class RoutineDbEntity {
+        private UUID id;
         private String name;
         private String routineType;
         private List<String> exercises;
         private List<Integer> repetitions;
+
+        public UUID getId() {
+            return id;
+        }
+
+        public void setId(UUID id) {
+            this.id = id;
+        }
 
         public String getName() {
             return name;

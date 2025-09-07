@@ -1,5 +1,6 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithProperValues() {
         Routine firstAmrapRoutine = Routine.of(
+                EntityId.generate(),
                 routineName,
                 routineType,
                 exercises,
@@ -42,6 +44,7 @@ class RoutineTest {
     public void initRoutineWithNoName_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     null,
                     routineType,
                     List.of(),
@@ -57,6 +60,7 @@ class RoutineTest {
     public void initRoutineWithEmptyName_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     null,
                     routineType,
                     List.of(),
@@ -72,6 +76,7 @@ class RoutineTest {
     public void initRoutineWithNoRoutineType_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     routineName,
                     null,
                     List.of(),
@@ -87,6 +92,7 @@ class RoutineTest {
     public void initRoutineWithNoExercises_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     routineName,
                     routineType,
                     List.of(),
@@ -102,6 +108,7 @@ class RoutineTest {
     public void initRoutineWithNoRepetitions_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     routineName,
                     routineType,
                     exercises,
@@ -117,6 +124,7 @@ class RoutineTest {
     public void initRoutineWithNotMatchingExercisesAndRepetitions_throwsException() {
         try {
             Routine.of(
+                    EntityId.generate(),
                     routineName,
                     routineType,
                     exercises,

@@ -31,7 +31,7 @@ public class Routine {
         if (repetitions == null || repetitions.isEmpty()) {
             throw new IllegalArgumentException("Repetitions is null or empty");
         }
-        if(exercises.size() != repetitions.size()) {
+        if (exercises.size() != repetitions.size()) {
             throw new IllegalArgumentException("Each exercise must have a corresponding repetition");
         }
 
@@ -57,6 +57,10 @@ public class Routine {
             List<Exercise> exercises,
             List<Repetition> repetitions) {
         return new Routine(id, name, routineType, exercises, repetitions);
+    }
+
+    public EntityId getId() {
+        return id;
     }
 
     public List<Exercise> getExercises() {

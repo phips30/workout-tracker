@@ -14,6 +14,10 @@ public final class EntityId {
         return new EntityId(UUID.randomUUID());
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

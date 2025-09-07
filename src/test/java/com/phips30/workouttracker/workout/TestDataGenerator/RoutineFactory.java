@@ -4,6 +4,7 @@ import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 
@@ -29,6 +30,7 @@ public class RoutineFactory {
     public static RoutineFactory createRoutine(String name) {
         RoutineFactory routineFactory = new RoutineFactory();
         routineFactory.routine = Routine.of(
+                EntityId.generate(),
                 name,
                 RoutineType.AMRAP,
                 List.of(Exercise.of(RandomData.shortString()), Exercise.of(RandomData.shortString())),

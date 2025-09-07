@@ -2,10 +2,16 @@ package com.phips30.workouttracker;
 
 import com.github.javafaker.Faker;
 
+import java.util.UUID;
+
 public class RandomData {
 
     public static Faker Faker() {
         return new Faker();
+    }
+
+    public static UUID randomUUID() {
+        return UUID.randomUUID();
     }
 
     public static String shortString() {

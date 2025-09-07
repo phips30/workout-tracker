@@ -22,7 +22,7 @@ public class CreateRoutine {
                         RoutineType type,
                         List<String> exercises,
                         List<Integer> repetitions) throws RoutineAlreadyExistsException {
-        Routine routine = Routine.createNew(
+        Routine routine = Routine.of(
                 name,
                 type,
                 exercises.stream().map(Exercise::of).toList(),

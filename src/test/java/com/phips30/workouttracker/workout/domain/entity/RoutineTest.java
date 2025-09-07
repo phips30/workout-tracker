@@ -3,7 +3,6 @@ package com.phips30.workouttracker.workout.domain.entity;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.Test;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +26,7 @@ class RoutineTest {
 
     @Test
     public void initRoutineWithProperValues() {
-        Routine firstAmrapRoutine = Routine.createNew(
+        Routine firstAmrapRoutine = Routine.of(
                 routineName,
                 routineType,
                 exercises,
@@ -42,7 +41,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoName_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     null,
                     routineType,
                     List.of(),
@@ -57,7 +56,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithEmptyName_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     null,
                     routineType,
                     List.of(),
@@ -72,7 +71,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoRoutineType_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     routineName,
                     null,
                     List.of(),
@@ -87,7 +86,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoExercises_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     routineName,
                     routineType,
                     List.of(),
@@ -102,7 +101,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithNoRepetitions_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     routineName,
                     routineType,
                     exercises,
@@ -117,7 +116,7 @@ class RoutineTest {
     @Test
     public void initRoutineWithNotMatchingExercisesAndRepetitions_throwsException() {
         try {
-            Routine.createNew(
+            Routine.of(
                     routineName,
                     routineType,
                     exercises,
@@ -126,23 +125,6 @@ class RoutineTest {
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             assertEquals("Each exercise must have a corresponding repetition", e.getMessage());
-        }
-    }
-
-    @Test
-    public void initExistingRoutineWithNoId_throwsException() {
-        try {
-            Routine.of(
-                    null,
-                    routineName,
-                    routineType,
-                    exercises,
-                    List.of(Repetition.of(10)),
-                    ZonedDateTime.now()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Entity id is null", e.getMessage());
         }
     }
 }

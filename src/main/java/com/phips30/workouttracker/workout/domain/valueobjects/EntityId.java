@@ -6,20 +6,12 @@ import java.util.UUID;
 public final class EntityId {
     private final UUID id;
 
-    private EntityId(UUID id) {
+    public EntityId(UUID id) {
         this.id = Objects.requireNonNull(id);
     }
 
     public static EntityId generate() {
-        return EntityId.of(UUID.randomUUID());
-    }
-
-    public static EntityId of(UUID id) {
-        return new EntityId(id);
-    }
-
-    public UUID getId() {
-        return this.id;
+        return new EntityId(UUID.randomUUID());
     }
 
     @Override

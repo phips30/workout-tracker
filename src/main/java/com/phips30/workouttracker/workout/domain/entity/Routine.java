@@ -63,10 +63,6 @@ public class Routine {
         return new Routine(id, name, routineType, exercises, repetitions, createdAt);
     }
 
-    public EntityId getId() {
-        return id;
-    }
-
     public List<Exercise> getExercises() {
         return Collections.unmodifiableList(this.exercises);
     }
@@ -81,10 +77,6 @@ public class Routine {
 
     public RoutineType getRoutineType() {
         return routineType;
-    }
-
-    public ZonedDateTime getCreatedAt() {
-        return createdAt;
     }
 
     @Override

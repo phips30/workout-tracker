@@ -28,7 +28,7 @@ public class RoutineFactory {
 
     public static RoutineFactory createRoutine(String name) {
         RoutineFactory routineFactory = new RoutineFactory();
-        routineFactory.routine = Routine.createNew(
+        routineFactory.routine = Routine.of(
                 name,
                 RoutineType.AMRAP,
                 List.of(Exercise.of(RandomData.shortString()), Exercise.of(RandomData.shortString())),

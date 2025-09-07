@@ -5,7 +5,6 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
-import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +12,9 @@ import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class RoutineRepositoryImpl implements RoutineRepository {
@@ -76,41 +73,27 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
         RoutineDbEntity routineToSave = new RoutineDbEntity();
-        routineToSave.setId(routine.getId().getId());
         routineToSave.setName(routine.getName());
         routineToSave.setRoutineType(routine.getRoutineType().toString());
         routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
         routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
-        routineToSave.setCreatedAt(routine.getCreatedAt());
         return routineToSave;
     }
 
     private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity) {
         return Routine.of(
-                EntityId.of(routineDbEntity.getId()),
                 routineDbEntity.getName(),
                 RoutineType.valueOf(routineDbEntity.getRoutineType()),
                 routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
-                routineDbEntity.getRepetitions().stream().map(Repetition::of).toList(),
-                routineDbEntity.getCreatedAt()
+                routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
         );
     }
 
     private static class RoutineDbEntity {
-        private UUID id;
         private String name;
         private String routineType;
         private List<String> exercises;
         private List<Integer> repetitions;
-        private ZonedDateTime createdAt;
-
-        public UUID getId() {
-            return id;
-        }
-
-        public void setId(UUID id) {
-            this.id = id;
-        }
 
         public String getName() {
             return name;
@@ -142,14 +125,6 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
         public void setRepetitions(List<Integer> repetitions) {
             this.repetitions = repetitions;
-        }
-
-        public ZonedDateTime getCreatedAt() {
-            return createdAt;
-        }
-
-        public void setCreatedAt(ZonedDateTime createdAt) {
-            this.createdAt = createdAt;
         }
     }
 }

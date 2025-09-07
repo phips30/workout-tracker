@@ -3,7 +3,6 @@ package com.phips30.workouttracker.workout.domain.entity;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -15,9 +14,8 @@ public class Routine {
     private final RoutineType routineType;
     private final List<Exercise> exercises;
     private final List<Repetition> repetitions;
-    private final ZonedDateTime createdAt;
 
-    private Routine(EntityId id, String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions, ZonedDateTime createdAt) {
+    private Routine(EntityId id, String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
         if (id == null) {
             throw new IllegalArgumentException("Entity id is null");
         }
@@ -42,7 +40,6 @@ public class Routine {
         this.routineType = routineType;
         this.exercises = exercises;
         this.repetitions = repetitions;
-        this.createdAt = createdAt;
     }
 
     public static Routine createNew(
@@ -50,7 +47,7 @@ public class Routine {
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(EntityId.generate(), name, routineType, exercises, repetitions, ZonedDateTime.now());
+        return new Routine(EntityId.generate(), name, routineType, exercises, repetitions);
     }
 
     public static Routine of(
@@ -58,9 +55,8 @@ public class Routine {
             String name,
             RoutineType routineType,
             List<Exercise> exercises,
-            List<Repetition> repetitions,
-            ZonedDateTime createdAt) {
-        return new Routine(id, name, routineType, exercises, repetitions, createdAt);
+            List<Repetition> repetitions) {
+        return new Routine(id, name, routineType, exercises, repetitions);
     }
 
     public List<Exercise> getExercises() {
@@ -101,7 +97,6 @@ public class Routine {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", routineType=" + routineType +
-                ", createdAt=" + createdAt +
                 '}';
     }
 }

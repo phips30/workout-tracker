@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/routine")
@@ -36,8 +39,16 @@ public class RoutineController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<Routine> getRoutine(@PathVariable("name") String routineName) throws RoutineNotFoundException {
-        return ResponseEntity.ok(loadRoutineUseCase.loadRoutine(routineName));
+    @GetMapping
+    public ResponseEntity<Set<RoutineRespone>> getRoutines(@PathVariable("name") String routineName) {
+        return ResponseEntity.ok(loadRoutineUseCase.loadRoutines().stream()
+                .map(r -> new RoutineRespone(r.getName(), r.getRoutineType().toString()))
+                .collect(Collectors.toSet()));
+    }
+
+    @GetMapping("/{name}/detail")
+    public ResponseEntity<RoutineDetailResponse> getRoutineDetails(@PathVariable("name") String routineName) throws RoutineNotFoundException {
+        Routine r = loadRoutineUseCase.loadRoutine(routineName);
+        return ResponseEntity.ok(new RoutineDetailResponse(r.getExercises(), r.getRepetitions()));
     }
 }

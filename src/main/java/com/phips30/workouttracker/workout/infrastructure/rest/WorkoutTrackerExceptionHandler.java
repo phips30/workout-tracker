@@ -1,5 +1,6 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
+import com.phips30.workouttracker.workout.domain.usecase.RoutineNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
@@ -49,5 +50,13 @@ public class WorkoutTrackerExceptionHandler extends ResponseEntityExceptionHandl
     ResponseEntity<Object> handleGeneralExceptions(Exception ex, WebRequest request) {
         return super.handleExceptionInternal(ex, new ErrorBody(ex.getMessage()),
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({
+            RoutineNotFoundException.class,
+    })
+    ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
+        return super.handleExceptionInternal(ex, new ErrorBody(ex.getMessage()),
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }

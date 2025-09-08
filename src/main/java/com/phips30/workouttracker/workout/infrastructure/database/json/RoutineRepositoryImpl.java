@@ -13,10 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class RoutineRepositoryImpl implements RoutineRepository {
@@ -34,9 +32,9 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     @Override
     public Optional<Routine> loadRoutine(String routineName) {
         try {
-            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
+            Set<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
+                    objectMapper.getTypeFactory().constructCollectionType(Set.class, RoutineDbEntity.class));
 
             return routineDbEntities.stream()
                     .filter(routine -> Objects.equals(routine.getName(), routineName))
@@ -46,6 +44,22 @@ public class RoutineRepositoryImpl implements RoutineRepository {
             logger.error("Error parsing the json file for routine name '{}'", routineName, e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Set<Routine> loadRoutines() {
+        try {
+            Set<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(Set.class, RoutineDbEntity.class));
+
+            return routineDbEntities.stream()
+                    .map(this::convertDbEntityToDomain)
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            logger.error("Error parsing the json file", e);
+        }
+        return new HashSet<>();
     }
 
     @Override

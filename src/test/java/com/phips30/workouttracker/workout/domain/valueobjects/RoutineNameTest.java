@@ -2,16 +2,32 @@ package com.phips30.workouttracker.workout.domain.valueobjects;
 
 import org.junit.jupiter.api.Test;
 
+import static com.phips30.workouttracker.RandomData.randomString;
 import static com.phips30.workouttracker.RandomData.shortString;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoutineNameTest {
 
     @Test
-    public void initRoutineName_valid() {
-        String name = shortString();
+    public void initRoutineName_shortName_valid() {
+        String name = randomString(3);
         RoutineName routineName = new RoutineName(name);
         assertEquals(name, routineName.getValue());
+    }
+
+    @Test
+    public void initRoutineName_longName_valid() {
+        String name = randomString(20);
+        RoutineName routineName = new RoutineName(name);
+        assertEquals(name, routineName.getValue());
+    }
+
+    @Test
+    public void initRoutineName_nameLessThan3Chars_throwsException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            new RoutineName(randomString(2));
+        });
+        assertEquals("Routine name cannot be less than three characters", exception.getMessage());
     }
 
     @Test

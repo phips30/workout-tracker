@@ -18,6 +18,10 @@ public class RandomData {
         return Faker().lorem().fixedString(5);
     }
 
+    public static String randomString(int length) {
+        return Faker().lorem().fixedString(length);
+    }
+
     public static int digit() {
         return Faker().number().randomDigit();
     }

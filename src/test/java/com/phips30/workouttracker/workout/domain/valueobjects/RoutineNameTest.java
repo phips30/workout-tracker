@@ -24,25 +24,33 @@ class RoutineNameTest {
 
     @Test
     public void initRoutineName_nameLessThan3Chars_throwsException() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RoutineName(randomString(2));
-        });
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutineName(randomString(2)));
+        assertEquals("Routine name cannot be less than three characters", exception.getMessage());
+    }
+
+    @Test
+    public void initRoutineName_nameLessThan3CharsButSpaces_throwsException() {
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutineName(" " + randomString(2) + " "));
         assertEquals("Routine name cannot be less than three characters", exception.getMessage());
     }
 
     @Test
     public void initRoutineName_emptyName_throwsException() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RoutineName("");
-        });
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutineName(""));
         assertEquals("Routine name cannot be null or empty", exception.getMessage());
     }
 
     @Test
     public void initRoutineName_nullName_throwsException() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RoutineName(null);
-        });
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutineName(null));
         assertEquals("Routine name cannot be null or empty", exception.getMessage());
     }
 

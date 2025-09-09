@@ -10,6 +10,9 @@ public class RoutineName {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("Routine name cannot be null or empty");
         }
+        if (value.trim().length() <= 2) {
+            throw new IllegalArgumentException("Routine name cannot be less than three characters");
+        }
         this.value = value;
     }
 

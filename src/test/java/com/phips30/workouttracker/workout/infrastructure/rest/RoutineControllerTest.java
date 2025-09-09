@@ -13,6 +13,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -61,17 +65,33 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutine_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
+    public void getRoutines_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
+        List<Routine> routines = List.of(
+                RoutineFactory.createRoutine().build(),
+                RoutineFactory.createRoutine().build());
+
+        when(loadRoutineUseCase.loadRoutines()).thenReturn(routines);
+
+        mvc.perform(get("/api/routine")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].name").value(routines.getFirst().getName()))
+                .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().getRoutineType()))
+                .andExpect(jsonPath("$[1].name").value(routines.getLast().getName()))
+                .andExpect(jsonPath("$[1].routineType").value(routines.getLast().getRoutineType()));
+    }
+
+    @Test
+    public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
 
         when(loadRoutineUseCase.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
-        mvc.perform(get("/api/routine/" + routine.getName())
+        mvc.perform(get("/api/routine/" + routine.getName() + "/detail")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(routine.getName()))
-                .andExpect(jsonPath("$.routineType").value(routine.getRoutineType().toString()))
                 .andExpect(jsonPath("$.exercises", hasSize(2)))
                 .andExpect(jsonPath("$.repetitions", hasSize(2)));
     }
@@ -84,7 +104,7 @@ class RoutineControllerTest {
         }).when(loadRoutineUseCase)
                 .loadRoutine(routine.name());
 
-        mvc.perform(get("/api/routine/" + routine.name())
+        mvc.perform(get("/api/routine/" + routine.name() + "/detail")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

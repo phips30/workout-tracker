@@ -30,7 +30,7 @@ public class CreateRoutine {
                 exercises.stream().map(Exercise::of).toList(),
                 repetitions.stream().map(Repetition::of).toList());
         if(routineRepository.exists(routine.getName())) {
-            throw new RoutineAlreadyExistsException(routine.getName());
+            throw new RoutineAlreadyExistsException(routine.getName().getValue());
         }
 
         routineRepository.saveRoutine(routine);

@@ -7,6 +7,7 @@ import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -30,14 +31,14 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     @Override
-    public Optional<Routine> loadRoutine(String routineName) {
+    public Optional<Routine> loadRoutine(RoutineName routineName) {
         try {
             Set<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
                     objectMapper.getTypeFactory().constructCollectionType(Set.class, RoutineDbEntity.class));
 
             return routineDbEntities.stream()
-                    .filter(routine -> Objects.equals(routine.getName(), routineName))
+                    .filter(routine -> Objects.equals(routine.getName(), routineName.getValue()))
                     .findFirst()
                     .map(this::convertDbEntityToDomain);
         } catch (IOException e) {
@@ -63,7 +64,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     @Override
-    public boolean exists(String name) {
+    public boolean exists(RoutineName name) {
         // TODO: just check for name without loading entire object
         return loadRoutine(name).isPresent();
     }
@@ -90,7 +91,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
         RoutineDbEntity routineToSave = new RoutineDbEntity();
         routineToSave.setId(routine.getId().getId());
-        routineToSave.setName(routine.getName());
+        routineToSave.setName(routine.getName().getValue());
         routineToSave.setRoutineType(routine.getRoutineType().toString());
         routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
         routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());

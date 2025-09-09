@@ -5,6 +5,7 @@ import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ class RoutineRepositoryImplTest {
     @InjectMocks
     private RoutineRepositoryImpl routineRepository;
 
-    private final String routineName = shortString();
+    private final RoutineName routineName = new RoutineName(shortString());
     private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
             Exercise.of(shortString()),
@@ -113,7 +114,7 @@ class RoutineRepositoryImplTest {
     @Test
     void exists_routineDoesNotExist_returnsFalse() {
         when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
-        assertFalse(routineRepository.exists(shortString()));
+        assertFalse(routineRepository.exists(new RoutineName(shortString())));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
 import com.phips30.workouttracker.workout.domain.usecase.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.usecase.RoutineNotFoundException;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,13 +43,13 @@ public class RoutineController {
     @GetMapping
     public ResponseEntity<List<RoutineRespone>> getRoutines() {
         return ResponseEntity.ok(loadRoutineUseCase.loadRoutines().stream()
-                .map(r -> new RoutineRespone(r.getName(), r.getRoutineType().toString()))
+                .map(r -> new RoutineRespone(r.getName().getValue(), r.getRoutineType().toString()))
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("/{name}/detail")
     public ResponseEntity<RoutineDetailResponse> getRoutineDetails(@PathVariable("name") String routineName) throws RoutineNotFoundException {
-        Routine r = loadRoutineUseCase.loadRoutine(routineName);
+        Routine r = loadRoutineUseCase.loadRoutine(new RoutineName(routineName));
         return ResponseEntity.ok(new RoutineDetailResponse(r.getExercises(), r.getRepetitions()));
     }
 }

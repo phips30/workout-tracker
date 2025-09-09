@@ -77,9 +77,9 @@ class RoutineControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].name").value(routines.getFirst().getName()))
+                .andExpect(jsonPath("$[0].name").value(routines.getFirst().getName().getValue()))
                 .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().getRoutineType().toString()))
-                .andExpect(jsonPath("$[1].name").value(routines.getLast().getName()))
+                .andExpect(jsonPath("$[1].name").value(routines.getLast().getName().getValue()))
                 .andExpect(jsonPath("$[1].routineType").value(routines.getLast().getRoutineType().toString()));
     }
 
@@ -90,7 +90,7 @@ class RoutineControllerTest {
         when(loadRoutineUseCase.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
-        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName(), "/detail"))
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exercises", hasSize(2)))
@@ -101,11 +101,11 @@ class RoutineControllerTest {
     public void getRoutine_causesException_returns400() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
-            throw new Exception(routine.getName());
+            throw new Exception(routine.getName().getValue());
         }).when(loadRoutineUseCase)
                 .loadRoutine(routine.getName());
 
-        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName(), "/detail"))
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

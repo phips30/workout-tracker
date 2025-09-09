@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.domain.entity;
 
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 
 import java.util.*;
 
@@ -10,17 +11,14 @@ import java.util.*;
  */
 public class Routine {
     private final EntityId id;
-    private final String name;
+    private final RoutineName name;
     private final RoutineType routineType;
     private final List<Exercise> exercises;
     private final List<Repetition> repetitions;
 
-    private Routine(EntityId id, String name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
+    private Routine(EntityId id, RoutineName name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
         if (id == null) {
             throw new IllegalArgumentException("Entity id is null");
-        }
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Routine name is null or empty");
         }
         if (routineType == null) {
             throw new IllegalArgumentException("RoutineType is null");
@@ -47,7 +45,7 @@ public class Routine {
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(EntityId.generate(), name, routineType, exercises, repetitions);
+        return new Routine(EntityId.generate(), new RoutineName(name), routineType, exercises, repetitions);
     }
 
     public static Routine of(
@@ -56,7 +54,7 @@ public class Routine {
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(id, name, routineType, exercises, repetitions);
+        return new Routine(id, new RoutineName(name), routineType, exercises, repetitions);
     }
 
     public EntityId getId() {
@@ -71,7 +69,7 @@ public class Routine {
         return Collections.unmodifiableList(this.repetitions);
     }
 
-    public String getName() {
+    public RoutineName getName() {
         return this.name;
     }
 

@@ -35,7 +35,7 @@ class RoutineTest {
                 repetitions
         );
 
-        assertEquals(routineName, firstAmrapRoutine.getName());
+        assertEquals(routineName, firstAmrapRoutine.getName().getValue());
         assertEquals(exercises.size(), firstAmrapRoutine.getExercises().size());
         assertEquals(repetitions.size(), firstAmrapRoutine.getRepetitions().size());
     }
@@ -52,7 +52,7 @@ class RoutineTest {
             );
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertEquals("Routine name is null or empty", e.getMessage());
+            assertEquals("Routine name cannot be null or empty", e.getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ class RoutineTest {
             );
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertEquals("Routine name is null or empty", e.getMessage());
+            assertEquals("Routine name cannot be null or empty", e.getMessage());
         }
     }
 

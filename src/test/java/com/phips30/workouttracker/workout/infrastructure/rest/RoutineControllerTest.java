@@ -13,9 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -77,9 +75,9 @@ class RoutineControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name").value(routines.getFirst().getName()))
-                .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().getRoutineType()))
+                .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().getRoutineType().toString()))
                 .andExpect(jsonPath("$[1].name").value(routines.getLast().getName()))
-                .andExpect(jsonPath("$[1].routineType").value(routines.getLast().getRoutineType()));
+                .andExpect(jsonPath("$[1].routineType").value(routines.getLast().getRoutineType().toString()));
     }
 
     @Test

@@ -47,19 +47,19 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     @Override
-    public Set<Routine> loadRoutines() {
+    public List<Routine> loadRoutines() {
         try {
-            Set<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
+            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(Set.class, RoutineDbEntity.class));
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
 
             return routineDbEntities.stream()
                     .map(this::convertDbEntityToDomain)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             logger.error("Error parsing the json file", e);
         }
-        return new HashSet<>();
+        return new ArrayList<>();
     }
 
     @Override

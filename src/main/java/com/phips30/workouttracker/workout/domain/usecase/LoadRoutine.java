@@ -3,7 +3,7 @@ package com.phips30.workouttracker.workout.domain.usecase;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 
-import java.util.Set;
+import java.util.List;
 
 public class LoadRoutine {
 
@@ -18,7 +18,7 @@ public class LoadRoutine {
                 .orElseThrow(() -> new RoutineNotFoundException(routineName));
     }
 
-    public Set<Routine> loadRoutines() {
+    public List<Routine> loadRoutines() {
         return routineRepository.loadRoutines();
     }
 }

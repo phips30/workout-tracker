@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -40,10 +40,10 @@ public class RoutineController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<RoutineRespone>> getRoutines(@PathVariable("name") String routineName) {
+    public ResponseEntity<List<RoutineRespone>> getRoutines() {
         return ResponseEntity.ok(loadRoutineUseCase.loadRoutines().stream()
                 .map(r -> new RoutineRespone(r.getName(), r.getRoutineType().toString()))
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/{name}/detail")

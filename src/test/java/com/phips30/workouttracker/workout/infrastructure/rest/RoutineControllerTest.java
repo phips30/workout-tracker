@@ -1,6 +1,7 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phips30.workouttracker.UrlBuilder;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
@@ -27,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RoutineController.class)
 class RoutineControllerTest {
 
+    String endpointUrl = "/api/routine";
+
     @Autowired
     private MockMvc mvc;
 
@@ -39,7 +42,7 @@ class RoutineControllerTest {
     public void addRoutine_doesNotExist_addedToDatabase_returns201() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         mvc.perform(
-                        post("/api/routine")
+                        post(endpointUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(routine)))
                 .andExpect(status().isCreated());
@@ -53,7 +56,7 @@ class RoutineControllerTest {
         }).when(createRoutineUseCase)
                 .execute(any(), any(), any(), any());
 
-        mvc.perform(post("/api/routine")
+        mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(routine))
                         .accept(MediaType.APPLICATION_JSON))
@@ -70,7 +73,7 @@ class RoutineControllerTest {
 
         when(loadRoutineUseCase.loadRoutines()).thenReturn(routines);
 
-        mvc.perform(get("/api/routine")
+        mvc.perform(get(endpointUrl)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -87,7 +90,7 @@ class RoutineControllerTest {
         when(loadRoutineUseCase.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
-        mvc.perform(get("/api/routine/" + routine.getName() + "/detail")
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exercises", hasSize(2)))
@@ -96,13 +99,13 @@ class RoutineControllerTest {
 
     @Test
     public void getRoutine_causesException_returns400() throws Exception {
-        NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
+        Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
-            throw new Exception(routine.name());
+            throw new Exception(routine.getName());
         }).when(loadRoutineUseCase)
-                .loadRoutine(routine.name());
+                .loadRoutine(routine.getName());
 
-        mvc.perform(get("/api/routine/" + routine.name() + "/detail")
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

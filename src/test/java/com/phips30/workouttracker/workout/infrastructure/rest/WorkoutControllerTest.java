@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.RandomData;
+import com.phips30.workouttracker.UrlBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,18 +23,9 @@ class WorkoutControllerTest {
     String workoutName = RandomData.shortString();
     String endpointUrl = "/api/workout";
 
-    public String buildUrl(String baseUrl, String ... pathVars) {
-        if(pathVars == null) {
-            return baseUrl;
-        }
-        return baseUrl.endsWith("/") ?
-                baseUrl + String.join("/", pathVars) :
-                baseUrl + "/" + String.join("/", pathVars);
-    }
-
     @Test
     public void addWorkout_addedToDatabase_returns201() throws Exception {
-        mvc.perform(post(buildUrl(endpointUrl, workoutName))
+        mvc.perform(post(UrlBuilder.buildUrl(endpointUrl, workoutName))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(""))
                 .andExpect(status().isCreated());
@@ -42,7 +34,7 @@ class WorkoutControllerTest {
     // TODO: Test all exceptions properly and not just the generic one
     @Test
     public void addWorkout_causesException_returns400() throws Exception {
-        mvc.perform(post(buildUrl(endpointUrl, workoutName))
+        mvc.perform(post(UrlBuilder.buildUrl(endpointUrl, workoutName))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(""))
                         .accept(MediaType.APPLICATION_JSON))
@@ -53,14 +45,14 @@ class WorkoutControllerTest {
 
     @Test
     public void getWorkouts_workoutsFetchedProperly_returnsWorkoutsAnd200() throws Exception {
-        mvc.perform(get(buildUrl(endpointUrl, workoutName))
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, workoutName))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getWorkouts_causesException_returns400() throws Exception {
-        mvc.perform(get(buildUrl(endpointUrl, workoutName))
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, workoutName))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

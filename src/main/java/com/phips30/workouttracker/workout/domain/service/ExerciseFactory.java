@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.domain.service;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 public class ExerciseFactory {
 
@@ -15,7 +16,7 @@ public class ExerciseFactory {
         if (exerciseRepository.exists(name)) {
             throw new ExerciseAlreadyExistsException(name);
         }
-        return Exercise.of(name);
+        return new Exercise(new ExerciseName(name));
     }
 
 }

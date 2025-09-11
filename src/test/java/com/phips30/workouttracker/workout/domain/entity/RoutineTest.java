@@ -1,6 +1,7 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import org.junit.jupiter.api.Test;
 
@@ -13,10 +14,10 @@ class RoutineTest {
     private final String routineName = "CVP";
     private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
-            Exercise.of("Burpees"),
-            Exercise.of("Mountain climbers"),
-            Exercise.of("4-Count burpees"),
-            Exercise.of("Jumping jacks")
+            new Exercise(new ExerciseName("Burpees")),
+            new Exercise(new ExerciseName("Mountain climbers")),
+            new Exercise(new ExerciseName("4-Count burpees")),
+            new Exercise(new ExerciseName("Jumping jacks"))
     );
     private final List<Repetition> repetitions = List.of(
             Repetition.of(10),

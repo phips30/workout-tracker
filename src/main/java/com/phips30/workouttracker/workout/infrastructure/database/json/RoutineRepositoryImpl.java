@@ -6,6 +6,7 @@ import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                 new EntityId(routineDbEntity.getId()),
                 routineDbEntity.getName(),
                 RoutineType.valueOf(routineDbEntity.getRoutineType()),
-                routineDbEntity.getExercises().stream().map(Exercise::of).toList(),
+                routineDbEntity.getExercises().stream().map(e -> new Exercise(new ExerciseName(e))).toList(),
                 routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
         );
     }

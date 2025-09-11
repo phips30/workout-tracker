@@ -4,7 +4,7 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
-import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import lombok.Builder;
 import lombok.Value;
@@ -26,7 +26,7 @@ public class CreateRoutine {
         Routine routine = Routine.createNew(
                 name,
                 type,
-                exercises.stream().map(Exercise::of).toList(),
+                exercises.stream().map(e -> new Exercise(new ExerciseName(e))).toList(),
                 repetitions.stream().map(Repetition::of).toList());
         if(routineRepository.exists(routine.getName())) {
             throw new RoutineAlreadyExistsException(routine.getName());

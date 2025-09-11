@@ -4,6 +4,7 @@ import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +36,8 @@ class RoutineRepositoryImplTest {
     private final RoutineName routineName = new RoutineName(shortString());
     private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
-            Exercise.of(shortString()),
-            Exercise.of(shortString())
+            new Exercise(new ExerciseName(shortString())),
+            new Exercise(new ExerciseName(shortString()))
     );
     private final List<Repetition> repetitions = List.of(
             Repetition.of(positiveDigit()),

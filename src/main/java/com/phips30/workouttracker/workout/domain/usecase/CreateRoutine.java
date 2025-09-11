@@ -23,14 +23,13 @@ public class CreateRoutine {
                         RoutineType type,
                         List<String> exercises,
                         List<Integer> repetitions) throws RoutineAlreadyExistsException {
-        Routine routine = Routine.of(
-                EntityId.generate(),
+        Routine routine = Routine.createNew(
                 name,
                 type,
                 exercises.stream().map(Exercise::of).toList(),
                 repetitions.stream().map(Repetition::of).toList());
         if(routineRepository.exists(routine.getName())) {
-            throw new RoutineAlreadyExistsException(routine.getName().getValue());
+            throw new RoutineAlreadyExistsException(routine.getName());
         }
 
         routineRepository.saveRoutine(routine);

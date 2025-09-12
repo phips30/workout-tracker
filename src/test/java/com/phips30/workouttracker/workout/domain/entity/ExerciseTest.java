@@ -68,7 +68,7 @@ class ExerciseTest {
     @Test
     public void testToString() {
         Exercise exercise = new Exercise(entityId, exerciseName);
-        String expected = String.format("Exercise{id='%s', name='%s'}", entityId, exerciseName);
+        String expected = String.format("Exercise{id=%s, name=%s}", entityId, exerciseName);
         assertEquals(expected, exercise.toString());
     }
 }

@@ -1,5 +1,6 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
+import com.phips30.workouttracker.workout.domain.util.AssertionHelper;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
@@ -17,18 +18,11 @@ public class Routine {
     private final List<Repetition> repetitions;
 
     private Routine(EntityId id, RoutineName name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
-        if (id == null) {
-            throw new IllegalArgumentException("Entity id is null");
-        }
-        if (routineType == null) {
-            throw new IllegalArgumentException("RoutineType is null");
-        }
-        if (exercises == null || exercises.isEmpty()) {
-            throw new IllegalArgumentException("Exercises is null or empty");
-        }
-        if (repetitions == null || repetitions.isEmpty()) {
-            throw new IllegalArgumentException("Repetitions is null or empty");
-        }
+        AssertionHelper.assertNotNull(id, "Entity id is null");
+        AssertionHelper.assertNotNull(routineType, "RoutineType is null");
+        AssertionHelper.assertNotNullOrEmpty(exercises, "Exercises is null or empty");
+        AssertionHelper.assertNotNullOrEmpty(repetitions, "Repetitions is null or empty");
+
         if (exercises.size() != repetitions.size()) {
             throw new IllegalArgumentException("Each exercise must have a corresponding repetition");
         }

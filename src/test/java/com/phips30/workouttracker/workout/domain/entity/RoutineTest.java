@@ -53,7 +53,7 @@ class RoutineTest {
             );
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertEquals("Routine name cannot be null or empty", e.getMessage());
+            assertEquals("RoutineName cannot be null or empty", e.getMessage());
         }
     }
 
@@ -69,7 +69,7 @@ class RoutineTest {
             );
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertEquals("Routine name cannot be null or empty", e.getMessage());
+            assertEquals("RoutineName cannot be null or empty", e.getMessage());
         }
     }
 

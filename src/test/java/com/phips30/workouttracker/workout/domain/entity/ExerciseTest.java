@@ -62,7 +62,7 @@ class ExerciseTest {
         Exercise exercise1 = new Exercise(exerciseName);
         Exercise exercise2 = new Exercise(exerciseName);
         assertNotEquals(exercise1, exercise2);
-        assertNotEquals(exercise1.hashCode(), exercise1.hashCode());
+        assertNotEquals(exercise1.hashCode(), exercise2.hashCode());
     }
 
     @Test

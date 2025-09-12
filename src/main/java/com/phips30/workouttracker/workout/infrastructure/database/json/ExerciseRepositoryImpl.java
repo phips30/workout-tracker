@@ -70,7 +70,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {
         ExerciseDbEntity exerciseToSave = new ExerciseDbEntity();
         exerciseToSave.setId(UUID.randomUUID());
-        exerciseToSave.setName(exercise.getName());
+        exerciseToSave.setName(exercise.getName().getValue());
         return exerciseToSave;
     }
 

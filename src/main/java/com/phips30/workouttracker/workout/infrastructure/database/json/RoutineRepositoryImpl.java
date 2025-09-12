@@ -94,7 +94,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
         routineToSave.setId(routine.getId().getId());
         routineToSave.setName(routine.getName().getValue());
         routineToSave.setRoutineType(routine.getRoutineType().toString());
-        routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).toList());
+        routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).map(ExerciseName::getValue).toList());
         routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
         return routineToSave;
     }

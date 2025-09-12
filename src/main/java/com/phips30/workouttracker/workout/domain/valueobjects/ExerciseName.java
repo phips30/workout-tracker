@@ -4,4 +4,8 @@ public class ExerciseName {
     public ExerciseName(String name) {
 
     }
+
+    public String getValue() {
+        return null;
+    }
 }

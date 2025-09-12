@@ -16,7 +16,7 @@ public class Exercise {
         this.name = name;
     }
 
-    public String getName() {
-        return "";
+    public ExerciseName getName() {
+        return this.name;
     }
 }

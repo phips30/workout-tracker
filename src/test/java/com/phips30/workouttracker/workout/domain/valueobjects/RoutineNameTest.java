@@ -27,7 +27,7 @@ class RoutineNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new RoutineName(randomString(2)));
-        assertEquals("Routine name cannot be less than three characters", exception.getMessage());
+        assertEquals("RoutineName cannot be less than three characters", exception.getMessage());
     }
 
     @Test
@@ -35,7 +35,7 @@ class RoutineNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new RoutineName(" " + randomString(2) + " "));
-        assertEquals("Routine name cannot be less than three characters", exception.getMessage());
+        assertEquals("RoutineName cannot be less than three characters", exception.getMessage());
     }
 
     @Test
@@ -43,7 +43,7 @@ class RoutineNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new RoutineName(""));
-        assertEquals("Routine name cannot be null or empty", exception.getMessage());
+        assertEquals("RoutineName cannot be null or empty", exception.getMessage());
     }
 
     @Test
@@ -51,7 +51,7 @@ class RoutineNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new RoutineName(null));
-        assertEquals("Routine name cannot be null or empty", exception.getMessage());
+        assertEquals("RoutineName cannot be null or empty", exception.getMessage());
     }
 
     @Test

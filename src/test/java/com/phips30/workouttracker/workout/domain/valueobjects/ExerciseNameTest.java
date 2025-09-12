@@ -27,7 +27,7 @@ class ExerciseNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new ExerciseName(randomString(2)));
-        assertEquals("Exercise name cannot be less than three characters", exception.getMessage());
+        assertEquals("ExerciseName cannot be less than three characters", exception.getMessage());
     }
 
     @Test
@@ -35,7 +35,7 @@ class ExerciseNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new ExerciseName(" " + randomString(2) + " "));
-        assertEquals("Exercise name cannot be less than three characters", exception.getMessage());
+        assertEquals("ExerciseName cannot be less than three characters", exception.getMessage());
     }
 
     @Test
@@ -43,7 +43,7 @@ class ExerciseNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new ExerciseName(""));
-        assertEquals("Exercise name cannot be null or empty", exception.getMessage());
+        assertEquals("ExerciseName cannot be null or empty", exception.getMessage());
     }
 
     @Test
@@ -51,7 +51,7 @@ class ExerciseNameTest {
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new ExerciseName(null));
-        assertEquals("Exercise name cannot be null or empty", exception.getMessage());
+        assertEquals("ExerciseName cannot be null or empty", exception.getMessage());
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.phips30.workouttracker.workout.domain.entity;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoutineTest {
 
-    private final String routineName = "CVP";
+    private final RoutineName routineName = new RoutineName("CVP");
     private final RoutineType routineType = RoutineType.AMRAP;
     private final List<Exercise> exercises = List.of(
             new Exercise(new ExerciseName("Burpees")),
@@ -36,7 +37,7 @@ class RoutineTest {
                 repetitions
         );
 
-        assertEquals(routineName, firstAmrapRoutine.getName().getValue());
+        assertEquals(routineName, firstAmrapRoutine.getName());
         assertEquals(exercises.size(), firstAmrapRoutine.getExercises().size());
         assertEquals(repetitions.size(), firstAmrapRoutine.getRepetitions().size());
     }
@@ -53,23 +54,7 @@ class RoutineTest {
             );
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertEquals("RoutineName cannot be null or empty", e.getMessage());
-        }
-    }
-
-    @Test
-    public void initRoutineWithEmptyName_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    null,
-                    routineType,
-                    List.of(),
-                    List.of()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("RoutineName cannot be null or empty", e.getMessage());
+            assertEquals("RoutineName id is null", e.getMessage());
         }
     }
 

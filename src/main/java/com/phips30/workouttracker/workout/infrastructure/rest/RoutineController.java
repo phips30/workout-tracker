@@ -1,10 +1,7 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.workout.domain.entity.Routine;
-import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
-import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
-import com.phips30.workouttracker.workout.domain.usecase.RoutineAlreadyExistsException;
-import com.phips30.workouttracker.workout.domain.usecase.RoutineNotFoundException;
+import com.phips30.workouttracker.workout.domain.usecase.*;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +17,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/routine")
 public class RoutineController {
 
-    private final CreateRoutine createRoutineUseCase;
-    private final LoadRoutine loadRoutineUseCase;
+    private final RoutineService routineService;
 
     @Autowired
-    public RoutineController(CreateRoutine createRoutineUseCase, LoadRoutine loadRoutineUseCase) {
-        this.createRoutineUseCase = createRoutineUseCase;
-        this.loadRoutineUseCase = loadRoutineUseCase;
+    public RoutineController(RoutineService routineService) {
+        this.routineService = routineService;
     }
 
     @PostMapping
     public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) throws RoutineAlreadyExistsException {
-        createRoutineUseCase.execute(
+        routineService.createRoutine(
                 routineRequest.name(),
                 routineRequest.routineType(),
                 routineRequest.exercises(),
@@ -42,14 +37,14 @@ public class RoutineController {
 
     @GetMapping
     public ResponseEntity<List<RoutineRespone>> getRoutines() {
-        return ResponseEntity.ok(loadRoutineUseCase.loadRoutines().stream()
+        return ResponseEntity.ok(routineService.loadRoutines().stream()
                 .map(r -> new RoutineRespone(r.getName().getValue(), r.getRoutineType().toString()))
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("/{name}/detail")
     public ResponseEntity<RoutineDetailResponse> getRoutineDetails(@PathVariable("name") String routineName) throws RoutineNotFoundException {
-        Routine r = loadRoutineUseCase.loadRoutine(new RoutineName(routineName));
+        Routine r = routineService.loadRoutine(new RoutineName(routineName));
         return ResponseEntity.ok(new RoutineDetailResponse(r.getExercises(), r.getRepetitions()));
     }
 }

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.UrlBuilder;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
-import com.phips30.workouttracker.workout.domain.usecase.CreateRoutine;
-import com.phips30.workouttracker.workout.domain.usecase.LoadRoutine;
+import com.phips30.workouttracker.workout.domain.usecase.RoutineService;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +33,7 @@ class RoutineControllerTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private CreateRoutine createRoutineUseCase;
-    @MockitoBean
-    private LoadRoutine loadRoutineUseCase;
+    private RoutineService routineService;
 
     @Test
     public void addRoutine_doesNotExist_addedToDatabase_returns201() throws Exception {
@@ -53,8 +50,8 @@ class RoutineControllerTest {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         doAnswer((invocation) -> {
             throw new Exception(routine.name());
-        }).when(createRoutineUseCase)
-                .execute(any(), any(), any(), any());
+        }).when(routineService)
+                .createRoutine(any(), any(), any(), any());
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +68,7 @@ class RoutineControllerTest {
                 RoutineFactory.createRoutine().build(),
                 RoutineFactory.createRoutine().build());
 
-        when(loadRoutineUseCase.loadRoutines()).thenReturn(routines);
+        when(routineService.loadRoutines()).thenReturn(routines);
 
         mvc.perform(get(endpointUrl)
                         .accept(MediaType.APPLICATION_JSON))
@@ -87,7 +84,7 @@ class RoutineControllerTest {
     public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
 
-        when(loadRoutineUseCase.loadRoutine(routine.getName()))
+        when(routineService.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
         mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
@@ -102,7 +99,7 @@ class RoutineControllerTest {
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
             throw new Exception(routine.getName().getValue());
-        }).when(loadRoutineUseCase)
+        }).when(routineService)
                 .loadRoutine(routine.getName());
 
         mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))

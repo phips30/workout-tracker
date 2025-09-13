@@ -19,6 +19,7 @@ public class Routine {
 
     private Routine(EntityId id, RoutineName name, RoutineType routineType, List<Exercise> exercises, List<Repetition> repetitions) {
         AssertionHelper.assertNotNull(id, "Entity id is null");
+        AssertionHelper.assertNotNull(name, "RoutineName id is null");
         AssertionHelper.assertNotNull(routineType, "RoutineType is null");
         AssertionHelper.assertNotNullOrEmpty(exercises, "Exercises is null or empty");
         AssertionHelper.assertNotNullOrEmpty(repetitions, "Repetitions is null or empty");
@@ -35,20 +36,20 @@ public class Routine {
     }
 
     public static Routine createNew(
-            String name,
+            RoutineName name,
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(EntityId.generate(), new RoutineName(name), routineType, exercises, repetitions);
+        return new Routine(EntityId.generate(), name, routineType, exercises, repetitions);
     }
 
     public static Routine of(
             EntityId id,
-            String name,
+            RoutineName name,
             RoutineType routineType,
             List<Exercise> exercises,
             List<Repetition> repetitions) {
-        return new Routine(id, new RoutineName(name), routineType, exercises, repetitions);
+        return new Routine(id, name, routineType, exercises, repetitions);
     }
 
     public EntityId getId() {

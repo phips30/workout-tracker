@@ -130,7 +130,7 @@ class RoutineRepositoryImplTest {
 
         Routine routineToSave = Routine.of(
                 EntityId.generate(),
-                "a new routine",
+                new RoutineName(randomString(5)),
                 routineType,
                 exercises,
                 repetitions

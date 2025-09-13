@@ -102,7 +102,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity) {
         return Routine.of(
                 new EntityId(routineDbEntity.getId()),
-                routineDbEntity.getName(),
+                new RoutineName(routineDbEntity.getName()),
                 RoutineType.valueOf(routineDbEntity.getRoutineType()),
                 routineDbEntity.getExercises().stream().map(e -> new Exercise(new ExerciseName(e))).toList(),
                 routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()

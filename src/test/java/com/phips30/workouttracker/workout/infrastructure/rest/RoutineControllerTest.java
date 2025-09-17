@@ -1,6 +1,7 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.UrlBuilder;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
@@ -63,6 +64,24 @@ class RoutineControllerTest {
     }
 
     @Test
+    public void addRoutine_causesServerError_returns500() throws Exception {
+        String errorString = RandomData.shortString();
+        NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
+        doAnswer((invocation) -> {
+            throw new Exception(errorString);
+        }).when(routineService)
+                .createRoutine(any(), any(), any(), any());
+
+        mvc.perform(post(endpointUrl)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(routine))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").value(errorString));
+    }
+
+    @Test
     public void getRoutines_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
         List<Routine> routines = List.of(
                 RoutineFactory.createRoutine().build(),
@@ -99,13 +118,27 @@ class RoutineControllerTest {
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
             throw new Exception(routine.getName().getValue());
-        }).when(routineService)
-                .loadRoutine(routine.getName());
+        }).when(routineService).loadRoutine(routine.getName());
 
         mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
                 .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
+    public void getRoutine_causesServerError_returns500() throws Exception {
+        String errorString = RandomData.shortString();
+        Routine routine = RoutineFactory.createRoutine().build();
+        doAnswer((invocation) -> {
+            throw new Exception(errorString);
+        }).when(routineService).loadRoutine(routine.getName());
+
+        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").value(errorString));
     }
 }

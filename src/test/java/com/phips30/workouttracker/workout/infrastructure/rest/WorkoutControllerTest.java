@@ -44,6 +44,18 @@ class WorkoutControllerTest {
     }
 
     @Test
+    public void addWorkout_causesServerException_returns500() throws Exception {
+        String errorString = RandomData.shortString();
+        mvc.perform(post(UrlBuilder.buildUrl(endpointUrl, workoutName))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(""))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").value(errorString));
+    }
+
+    @Test
     public void getWorkouts_workoutsFetchedProperly_returnsWorkoutsAnd200() throws Exception {
         mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, workoutName))
                         .accept(MediaType.APPLICATION_JSON))

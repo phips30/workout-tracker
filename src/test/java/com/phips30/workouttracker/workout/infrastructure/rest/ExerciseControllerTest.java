@@ -1,5 +1,6 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
+import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.usecase.ExerciseService;
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,6 +30,20 @@ class ExerciseControllerTest {
 
     @MockitoBean
     private ExerciseService exerciseService;
+
+    @Test
+    public void getExercises_throwsError_returns500() throws Exception {
+        String errorString = RandomData.shortString();
+        doAnswer((invocation) -> {
+            throw new Exception(errorString);
+        }).when(exerciseService).loadAll();
+
+        mvc.perform(get(endpointUrl)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").value(errorString));
+    }
 
     @Test
     public void getExercises_exercisesFetchedProperly_returnsExercisesAnd200() throws Exception {

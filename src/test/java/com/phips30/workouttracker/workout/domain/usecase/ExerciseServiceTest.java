@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.domain.service;
+package com.phips30.workouttracker.workout.domain.usecase;
 
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
@@ -13,12 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ExerciseFactoryTest {
+class ExerciseServiceTest {
     private final String exerciseName = RandomData.shortString();
 
     @InjectMocks
-    private ExerciseFactory exerciseFactory;
-
+    private ExerciseService exerciseService;
     @Mock
     private ExerciseRepository exerciseRepository;
 
@@ -26,7 +25,7 @@ class ExerciseFactoryTest {
     public void createExercise_alreadyExists_throwsError() {
         try {
             when(exerciseRepository.exists(exerciseName)).thenReturn(true);
-            exerciseFactory.of(exerciseName);
+            exerciseService.create(exerciseName);
             fail("Expected Exception");
         } catch (Exception e) {
             assertEquals(String.format("Exercise %s already exists", exerciseName), e.getMessage());
@@ -36,26 +35,26 @@ class ExerciseFactoryTest {
     @Test
     public void createExercise_noName_throwsError() {
         try {
-            exerciseFactory.of(null);
+            exerciseService.create(null);
             fail("Expected Exception");
         } catch (Exception e) {
-            assertEquals("Name is null or empty", e.getMessage());
+            assertEquals("ExerciseName cannot be null or empty", e.getMessage());
         }
     }
 
     @Test
     public void createExercise_emptyName_throwsError() {
         try {
-            exerciseFactory.of("");
+            exerciseService.create("");
             fail("Expected Exception");
         } catch (Exception e) {
-            assertEquals("Name is null or empty", e.getMessage());
+            assertEquals("ExerciseName cannot be null or empty", e.getMessage());
         }
     }
 
     @Test
     public void createExercise_validNameAndDoesNotExist_returnsExerciseObject() throws ExerciseAlreadyExistsException {
-        Exercise exercise = exerciseFactory.of(exerciseName);
-        assertEquals(exercise.getName(), exerciseName);
+        Exercise exercise = exerciseService.create(exerciseName);
+        assertEquals(exercise.getName().getValue(), exerciseName);
     }
 }

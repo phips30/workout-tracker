@@ -46,8 +46,8 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public Optional<Exercise> create(Exercise exercise) {
-        // Todo: Rewrite to return a result object instead of an optional
+    public Exercise save(Exercise exercise) {
+        // TODO: Throw exception or return resultobject in case of errors
         try {
             List<ExerciseDbEntity> exerciseDbEntities = new ArrayList<>();
 
@@ -60,11 +60,10 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
             ExerciseDbEntity exerciseToSave = convertDomainToDbEntity(exercise);
             exerciseDbEntities.add(exerciseToSave);
             objectMapper.writeValue(exerciseDbFile, exerciseDbEntities);
-            return Optional.of(exercise);
         } catch (IOException e) {
             logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
         }
-        return Optional.empty();
+        return exercise;
     }
 
     private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {

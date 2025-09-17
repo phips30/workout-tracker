@@ -2,8 +2,9 @@ package com.phips30.workouttracker.workout.domain.usecase;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
-import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
+
+import java.util.List;
 
 public class ExerciseService {
 
@@ -18,5 +19,9 @@ public class ExerciseService {
             throw new ExerciseAlreadyExistsException(name);
         }
         return new Exercise(new ExerciseName(name));
+    }
+
+    public List<Exercise> loadAll() {
+        return exerciseRepository.loadAll();
     }
 }

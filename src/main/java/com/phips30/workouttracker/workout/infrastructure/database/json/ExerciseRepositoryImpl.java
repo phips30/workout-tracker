@@ -3,6 +3,8 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class ExerciseRepositoryImpl implements ExerciseRepository {
@@ -53,7 +56,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
 
             if (exerciseDbFile.length() > 0) {
                 exerciseDbEntities = objectMapper.readValue(
-                        new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
+                        new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
                         objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
             }
 
@@ -64,6 +67,29 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
             logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
         }
         return exercise;
+    }
+
+    @Override
+    public List<Exercise> loadAll() {
+        try {
+            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+
+            return exerciseDbEntities.stream()
+                    .map(this::convertDbEntityToDomain)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            logger.error("Error parsing the json file", e);
+        }
+        return new ArrayList<>();
+    }
+
+    private Exercise convertDbEntityToDomain(ExerciseDbEntity exerciseDbEntity) {
+        return new Exercise(
+                new EntityId(exerciseDbEntity.id),
+                new ExerciseName(exerciseDbEntity.name)
+        );
     }
 
     private ExerciseDbEntity convertDomainToDbEntity(Exercise exercise) {

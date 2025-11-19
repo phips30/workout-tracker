@@ -5,7 +5,10 @@ import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.UrlBuilder;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.usecase.RoutineService;
+import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +50,10 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void addRoutine_causesException_returns400() throws Exception {
+    public void addRoutine_causesException_returns400() throws RoutineAlreadyExistsException, Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         doAnswer((invocation) -> {
-            throw new Exception(routine.name());
+            throw new RoutineAlreadyExistsException(new RoutineName(routine.name()));
         }).when(routineService)
                 .createRoutine(any(), any(), any(), any());
 
@@ -64,7 +67,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void addRoutine_causesServerError_returns500() throws Exception {
+    public void addRoutine_causesServerError_returns500() throws Exception, RoutineAlreadyExistsException {
         String errorString = RandomData.shortString();
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         doAnswer((invocation) -> {
@@ -100,7 +103,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
+    public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception, RoutineNotFoundException {
         Routine routine = RoutineFactory.createRoutine().build();
 
         when(routineService.loadRoutine(routine.getName()))
@@ -114,7 +117,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutine_causesException_returns400() throws Exception {
+    public void getRoutine_causesException_returns400() throws Exception, RoutineNotFoundException {
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
             throw new Exception(routine.getName().getValue());
@@ -128,7 +131,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutine_causesServerError_returns500() throws Exception {
+    public void getRoutine_causesServerError_returns500() throws Exception, RoutineNotFoundException {
         String errorString = RandomData.shortString();
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {

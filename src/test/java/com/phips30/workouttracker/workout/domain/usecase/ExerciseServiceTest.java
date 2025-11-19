@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.domain.usecase;
 
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ class ExerciseServiceTest {
     private ExerciseRepository exerciseRepository;
 
     @Test
-    public void createExercise_alreadyExists_throwsError() {
+    public void createExercise_alreadyExists_throwsError() throws ExerciseAlreadyExistsException {
         try {
             when(exerciseRepository.exists(exerciseName)).thenReturn(true);
             exerciseService.create(exerciseName);
@@ -33,7 +34,7 @@ class ExerciseServiceTest {
     }
 
     @Test
-    public void createExercise_noName_throwsError() {
+    public void createExercise_noName_throwsError() throws ExerciseAlreadyExistsException {
         try {
             exerciseService.create(null);
             fail("Expected Exception");
@@ -43,7 +44,7 @@ class ExerciseServiceTest {
     }
 
     @Test
-    public void createExercise_emptyName_throwsError() {
+    public void createExercise_emptyName_throwsError() throws ExerciseAlreadyExistsException {
         try {
             exerciseService.create("");
             fail("Expected Exception");

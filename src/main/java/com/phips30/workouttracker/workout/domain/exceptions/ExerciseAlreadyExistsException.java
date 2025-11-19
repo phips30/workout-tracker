@@ -1,6 +1,6 @@
-package com.phips30.workouttracker.workout.domain.usecase;
+package com.phips30.workouttracker.workout.domain.exceptions;
 
-public class ExerciseAlreadyExistsException extends Exception {
+public class ExerciseAlreadyExistsException extends AlreadyExistsException {
     public ExerciseAlreadyExistsException(String exerciseName) {
         super(String.format("Exercise %s already exists", exerciseName));
     }

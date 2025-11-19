@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.domain.service;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
-import com.phips30.workouttracker.workout.domain.usecase.ExerciseAlreadyExistsException;
+import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 public class ExerciseFactory {

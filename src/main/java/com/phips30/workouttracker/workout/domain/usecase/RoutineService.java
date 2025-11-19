@@ -3,6 +3,8 @@ package com.phips30.workouttracker.workout.domain.usecase;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;

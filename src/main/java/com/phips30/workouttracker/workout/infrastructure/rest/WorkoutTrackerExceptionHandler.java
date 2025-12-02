@@ -2,6 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.workout.domain.exceptions.AlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.exceptions.NotFoundException;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
@@ -34,7 +35,7 @@ public class WorkoutTrackerExceptionHandler extends ResponseEntityExceptionHandl
     }
 
     @ExceptionHandler({
-            NotFoundException.class,
+            NotFoundException.class
     })
     ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
         return super.handleExceptionInternal(ex, new ErrorBody(ex.getMessage()),

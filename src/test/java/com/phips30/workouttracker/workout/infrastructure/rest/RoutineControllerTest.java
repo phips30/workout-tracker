@@ -50,12 +50,12 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void addRoutine_causesException_returns400() throws RoutineAlreadyExistsException, Exception {
+    public void addRoutine_alreadyExists_returns400() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         doAnswer((invocation) -> {
             throw new RoutineAlreadyExistsException(new RoutineName(routine.name()));
         }).when(routineService)
-                .createRoutine(any(), any(), any(), any());
+                .createRoutine(routine.name(), routine.routineType(), routine.exercises(), routine.repetitions());
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutines_routineFetchedProperly_returnsRoutinesAnd200() throws Exception {
+    public void getRoutines_routinesFetchedProperly_returnsRoutinesAnd200() throws Exception {
         List<Routine> routines = List.of(
                 RoutineFactory.createRoutine().build(),
                 RoutineFactory.createRoutine().build());
@@ -103,7 +103,7 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception, RoutineNotFoundException {
+    public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
 
         when(routineService.loadRoutine(routine.getName()))
@@ -117,21 +117,21 @@ class RoutineControllerTest {
     }
 
     @Test
-    public void getRoutine_causesException_returns400() throws Exception, RoutineNotFoundException {
+    public void getRoutine_notFound_returns404() throws Exception {
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {
-            throw new Exception(routine.getName().getValue());
+            throw new RoutineNotFoundException(routine.getName());
         }).when(routineService).loadRoutine(routine.getName());
 
         mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
                 .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
     @Test
-    public void getRoutine_causesServerError_returns500() throws Exception, RoutineNotFoundException {
+    public void getRoutine_causesServerError_returns500() throws Exception {
         String errorString = RandomData.shortString();
         Routine routine = RoutineFactory.createRoutine().build();
         doAnswer((invocation) -> {

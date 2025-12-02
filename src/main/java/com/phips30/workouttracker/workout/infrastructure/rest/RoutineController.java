@@ -46,6 +46,12 @@ public class RoutineController {
                 .collect(Collectors.toList()));
     }
 
+    @GetMapping("/{name}")
+    public ResponseEntity<RoutineRespone> getRoutine(@PathVariable("name") String routineName) throws RoutineNotFoundException {
+        Routine r = routineService.loadRoutine(new RoutineName(routineName));
+        return ResponseEntity.ok(new RoutineRespone(r.getName().getValue(), r.getRoutineType().toString()));
+    }
+
     @GetMapping("/{name}/detail")
     public ResponseEntity<RoutineDetailResponse> getRoutineDetails(@PathVariable("name") String routineName) throws RoutineNotFoundException {
         Routine r = routineService.loadRoutine(new RoutineName(routineName));

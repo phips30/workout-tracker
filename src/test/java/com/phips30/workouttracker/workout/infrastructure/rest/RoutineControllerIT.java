@@ -1,8 +1,8 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
-import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
+import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineRespone;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,14 +20,15 @@ class RoutineControllerIT {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void addRoutine_doesNotExist_addedToDatabase() throws Exception {
+    public void addRoutine_doesNotExist_addedToDatabase() {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         ResponseEntity<Void> postReponse = restTemplate.postForEntity("/api/routine", routine, Void.class);
         assertThat(postReponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        ResponseEntity<Routine> getResponse = restTemplate.getForEntity("/api/routine/"  + routine.name(), Routine.class);
+        ResponseEntity<RoutineRespone> getResponse = restTemplate.getForEntity("/api/routine/"  + routine.name(), RoutineRespone.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(getResponse.getBody());
-        assertEquals(getResponse.getBody().getName(), routine.name());
+        assertEquals(getResponse.getBody().name(), routine.name());
+        assertEquals(getResponse.getBody().routineType(), routine.routineType().toString());
     }
 }

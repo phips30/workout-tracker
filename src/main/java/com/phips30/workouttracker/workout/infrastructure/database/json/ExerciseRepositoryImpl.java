@@ -85,6 +85,23 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Exercise> loadByIds(Set<UUID> exerciseIds) {
+        try {
+            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
+                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
+
+            return exerciseDbEntities.stream()
+                    .filter(e -> exerciseIds.contains(e.id))
+                    .map(this::convertDbEntityToDomain)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            logger.error("Error parsing the json file", e);
+        }
+        return new ArrayList<>();
+    }
+
     private Exercise convertDbEntityToDomain(ExerciseDbEntity exerciseDbEntity) {
         return new Exercise(
                 new EntityId(exerciseDbEntity.id),

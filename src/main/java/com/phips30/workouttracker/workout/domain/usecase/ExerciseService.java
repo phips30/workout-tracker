@@ -19,7 +19,7 @@ public class ExerciseService {
         if (exerciseRepository.exists(name)) {
             throw new ExerciseAlreadyExistsException(name);
         }
-        return new Exercise(new ExerciseName(name));
+        return exerciseRepository.save(new Exercise(new ExerciseName(name)));
     }
 
     public List<Exercise> loadAll() {

@@ -1,11 +1,7 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
-import com.phips30.workouttracker.workout.TestDataGenerator.ExerciseFactory;
-import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseResponse;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
-import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
-import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineRespone;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -86,7 +86,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public List<Exercise> loadByIds(Set<UUID> exerciseIds) {
+    public List<Exercise> loadByIds(List<UUID> exerciseIds) {
         try {
             List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),

@@ -6,7 +6,6 @@ import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
-import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.slf4j.Logger;
@@ -26,9 +25,12 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
+    private final ExerciseRepositoryImpl exerciseRepository;
 
-    public RoutineRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
+    public RoutineRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig,
+                                 ExerciseRepositoryImpl exerciseRepository) {
         this.jsonDatabaseConfig = jsonDatabaseConfig;
+        this.exerciseRepository = exerciseRepository;
     }
 
     @Override
@@ -41,7 +43,10 @@ public class RoutineRepositoryImpl implements RoutineRepository {
             return routineDbEntities.stream()
                     .filter(routine -> Objects.equals(routine.getName(), routineName.getValue()))
                     .findFirst()
-                    .map(this::convertDbEntityToDomain);
+                    .map(r -> {
+                        List<Exercise> e = loadExercisesForRoutine(r);
+                        return convertDbEntityToDomain(r, e);
+                    });
         } catch (IOException e) {
             logger.error("Error parsing the json file for routine name '{}'", routineName, e);
         }
@@ -56,12 +61,19 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
 
             return routineDbEntities.stream()
-                    .map(this::convertDbEntityToDomain)
+                    .map(r -> {
+                        List<Exercise> e = loadExercisesForRoutine(r);
+                        return convertDbEntityToDomain(r, e);
+                    })
                     .collect(Collectors.toList());
         } catch (IOException e) {
             logger.error("Error parsing the json file", e);
         }
         return new ArrayList<>();
+    }
+
+    private List<Exercise> loadExercisesForRoutine(RoutineDbEntity routine) {
+        return exerciseRepository.loadByIds(routine.exerciseIds);
     }
 
     @Override
@@ -94,17 +106,17 @@ public class RoutineRepositoryImpl implements RoutineRepository {
         routineToSave.setId(routine.getId().getId());
         routineToSave.setName(routine.getName().getValue());
         routineToSave.setRoutineType(routine.getRoutineType().toString());
-        routineToSave.setExercises(routine.getExercises().stream().map(Exercise::getName).map(ExerciseName::getValue).toList());
+        routineToSave.setExerciseIds(routine.getExercises().stream().map(Exercise::getId).map(EntityId::getId).toList());
         routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
         return routineToSave;
     }
 
-    private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity) {
+    private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity, List<Exercise> exercises) {
         return Routine.of(
                 new EntityId(routineDbEntity.getId()),
                 new RoutineName(routineDbEntity.getName()),
                 RoutineType.valueOf(routineDbEntity.getRoutineType()),
-                routineDbEntity.getExercises().stream().map(e -> new Exercise(new ExerciseName(e))).toList(),
+                exercises,
                 routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
         );
     }
@@ -113,7 +125,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
         private UUID id;
         private String name;
         private String routineType;
-        private List<String> exercises;
+        private List<UUID> exerciseIds;
         private List<Integer> repetitions;
 
         public UUID getId() {
@@ -140,12 +152,12 @@ public class RoutineRepositoryImpl implements RoutineRepository {
             this.routineType = routineType;
         }
 
-        public List<String> getExercises() {
-            return exercises;
+        public List<UUID> getExerciseIds() {
+            return exerciseIds;
         }
 
-        public void setExercises(List<String> exercises) {
-            this.exercises = exercises;
+        public void setExerciseIds(List<UUID> exerciseIds) {
+            this.exerciseIds = exerciseIds;
         }
 
         public List<Integer> getRepetitions() {

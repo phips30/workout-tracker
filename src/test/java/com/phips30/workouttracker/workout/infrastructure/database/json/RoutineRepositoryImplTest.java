@@ -35,7 +35,7 @@ class RoutineRepositoryImplTest {
 
     private final RoutineName routineName = new RoutineName(shortString());
     private final RoutineType routineType = RoutineType.AMRAP;
-    private final List<Exercise> exercises = List.of(
+    private final List<Exercise> exercisesForRoutineToLookup = List.of(
             new Exercise(new ExerciseName(shortString())),
             new Exercise(new ExerciseName(shortString()))
     );
@@ -48,26 +48,36 @@ class RoutineRepositoryImplTest {
             " \"id\": \"" + randomUUID() + "\"," +
             "  \"name\": \"%s\"," +
             "  \"routineType\": \"AMRAP\"," +
-            "  \"exercises\": [%s]," +
+            "  \"exerciseIds\": [%s]," +
             "  \"repetitions\": [%s]" +
             "}",
             routineName,
-            exercises.stream().map(e -> "\"" + e.getName() + "\"").collect(Collectors.joining(", ")),
+            exercisesForRoutineToLookup.stream().map(e -> "\"" + e.getId() + "\"").collect(Collectors.joining(", ")),
             repetitions.stream().map(r -> String.valueOf(r.getNumber())).collect(Collectors.joining(", ")));
 
-    private final String dummyRoutine = "{" +
+    private final List<Exercise> exercisesForDummyRoutine = List.of(
+            new Exercise(new ExerciseName(shortString())),
+            new Exercise(new ExerciseName(shortString()))
+    );
+
+    private final String dummyRoutine = String.format("{" +
             " \"id\": \"" + randomUUID() + "\"," +
             " \"name\": \"OtherRoutine\"," +
             " \"routineType\": \"AMRAP\"," +
-            " \"exercises\": [\"burpees\", \"mountain climbers\", \"burpees with legs out jump\", \"jumping jacks\"]," +
+            " \"exerciseIds\": [%s]," +
             " \"repetitions\": [10, 40, 10, 10]" +
-            " }";
+            " }",
+            exercisesForDummyRoutine.stream().map(e -> "\"" + e.getId() + "\"").collect(Collectors.joining(", "))
+    );
 
     @Mock
     private JsonDatabaseConfig jsonDatabaseConfig;
 
     @Mock
     private JsonDatabaseConfig.Json json;
+
+    @Mock
+    private ExerciseRepositoryImpl exerciseRepository;
 
     @TempDir
     File tempFolder;
@@ -100,12 +110,15 @@ class RoutineRepositoryImplTest {
     @Test
     void loadRoutine_existsInJson_returnsRoutine() {
         when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(exerciseRepository.loadByIds(
+                exercisesForRoutineToLookup.stream().map(e -> e.getId().getId()).collect(Collectors.toList())
+        )).thenReturn(exercisesForRoutineToLookup);
 
         Optional<Routine> routineFromDb = routineRepository.loadRoutine(routineName);
         assertTrue(routineFromDb.isPresent());
         assertEquals(routineName, routineFromDb.get().getName());
         assertEquals(
-                exercises.stream().map(Exercise::getName).toList(),
+                exercisesForRoutineToLookup.stream().map(Exercise::getName).toList(),
                 routineFromDb.get().getExercises().stream().map(Exercise::getName).toList());
         assertEquals(
                 repetitions.stream().map(Repetition::getNumber).toList(),
@@ -121,6 +134,9 @@ class RoutineRepositoryImplTest {
     @Test
     void exists_routineDoesExist_returnsTrue() {
         when(json.getRoutineFilepath()).thenReturn(multipleWorkoutDbFile.getAbsolutePath());
+        when(exerciseRepository.loadByIds(
+                exercisesForRoutineToLookup.stream().map(e -> e.getId().getId()).collect(Collectors.toList())
+        )).thenReturn(exercisesForRoutineToLookup);
         assertTrue(routineRepository.exists(routineName));
     }
 
@@ -132,7 +148,7 @@ class RoutineRepositoryImplTest {
                 EntityId.generate(),
                 new RoutineName(randomString(5)),
                 routineType,
-                exercises,
+                exercisesForRoutineToLookup,
                 repetitions
         );
 

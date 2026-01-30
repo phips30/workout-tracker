@@ -6,6 +6,7 @@ import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ExerciseService {
 
@@ -24,5 +25,9 @@ public class ExerciseService {
 
     public List<Exercise> loadAll() {
         return exerciseRepository.loadAll();
+    }
+
+    public List<Exercise> loadByIds(List<UUID> exerciseIds) {
+        return exerciseRepository.loadByIds(exerciseIds);
     }
 }

@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 public class UseCaseSetup {
 
     @Bean
-    public RoutineService routineService(RoutineRepository routineRepository) {
-        return new RoutineService(routineRepository);
+    public RoutineService routineService(RoutineRepository routineRepository, ExerciseService exerciseService) {
+        return new RoutineService(routineRepository, exerciseService);
     }
 
     @Bean

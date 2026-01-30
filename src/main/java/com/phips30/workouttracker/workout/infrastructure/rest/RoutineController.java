@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -33,7 +34,7 @@ public class RoutineController {
         routineService.createRoutine(
                 routineRequest.name(),
                 routineRequest.routineType(),
-                routineRequest.exercises(),
+                routineRequest.exerciseIds().stream().map(UUID::fromString).collect(Collectors.toList()),
                 routineRequest.repetitions()
         );
         return new ResponseEntity<>(HttpStatus.CREATED);

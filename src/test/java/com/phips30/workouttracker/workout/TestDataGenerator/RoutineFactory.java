@@ -17,11 +17,18 @@ public class RoutineFactory {
     private Routine routine;
 
     public static NewRoutineRequest createNewRoutineRequest() {
+        return createNewRoutineRequest(
+                List.of(RandomData.randomUUID().toString(), RandomData.randomUUID().toString()),
+                List.of(RandomData.positiveDigit(), RandomData.positiveDigit())
+        );
+    }
+
+    public static NewRoutineRequest createNewRoutineRequest(List<String> exerciseIds, List<Integer> repetitions) {
         return new NewRoutineRequest(
                 RandomData.shortString(),
                 RoutineType.AMRAP,
-                List.of(RandomData.shortString(), RandomData.shortString()),
-                List.of(RandomData.positiveDigit(), RandomData.positiveDigit())
+                exerciseIds,
+                repetitions
         );
     }
 

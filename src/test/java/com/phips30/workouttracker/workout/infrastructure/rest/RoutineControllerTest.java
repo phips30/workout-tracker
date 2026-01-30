@@ -18,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +56,8 @@ class RoutineControllerTest {
         doAnswer((invocation) -> {
             throw new RoutineAlreadyExistsException(new RoutineName(routine.name()));
         }).when(routineService)
-                .createRoutine(routine.name(), routine.routineType(), routine.exercises(), routine.repetitions());
+                .createRoutine(routine.name(), routine.routineType(),
+                        routine.exerciseIds().stream().map(UUID::fromString).toList(), routine.repetitions());
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -6,7 +6,6 @@ import com.phips30.workouttracker.workout.domain.usecase.ExerciseService;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseResponse;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +31,8 @@ public class ExerciseController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addExercise(@RequestBody NewExerciseRequest exerciseRequest) throws ExerciseAlreadyExistsException {
-        exerciseService.create(exerciseRequest.name());
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<ExerciseResponse> addExercise(@RequestBody NewExerciseRequest exerciseRequest) throws ExerciseAlreadyExistsException {
+        Exercise exercise = exerciseService.create(exerciseRequest.name());
+        return ResponseEntity.ok(new ExerciseResponse(exercise.getId().getId().toString(), exercise.getName().getValue()));
     }
-
 }

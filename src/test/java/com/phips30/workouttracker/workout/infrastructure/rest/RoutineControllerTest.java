@@ -37,6 +37,9 @@ class RoutineControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockitoBean
     private RoutineService routineService;
 
@@ -46,7 +49,7 @@ class RoutineControllerTest {
         mvc.perform(
                         post(endpointUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(routine)))
+                                .content(objectMapper.writeValueAsString(routine)))
                 .andExpect(status().isCreated());
     }
 
@@ -61,7 +64,7 @@ class RoutineControllerTest {
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(routine))
+                        .content(objectMapper.writeValueAsString(routine))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
@@ -79,7 +82,7 @@ class RoutineControllerTest {
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(routine))
+                        .content(objectMapper.writeValueAsString(routine))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

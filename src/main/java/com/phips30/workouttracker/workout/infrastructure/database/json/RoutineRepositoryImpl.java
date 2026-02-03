@@ -20,15 +20,17 @@ import java.util.stream.Collectors;
 @Repository
 public class RoutineRepositoryImpl implements RoutineRepository {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
     private final ExerciseRepositoryImpl exerciseRepository;
 
-    public RoutineRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig,
+    public RoutineRepositoryImpl(ObjectMapper objectMapper,
+                                 JsonDatabaseConfig jsonDatabaseConfig,
                                  ExerciseRepositoryImpl exerciseRepository) {
+        this.objectMapper = objectMapper;
         this.jsonDatabaseConfig = jsonDatabaseConfig;
         this.exerciseRepository = exerciseRepository;
     }
@@ -73,7 +75,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     private List<Exercise> loadExercisesForRoutine(RoutineDbEntity routine) {
-        return exerciseRepository.loadByIds(routine.exerciseIds);
+        return exerciseRepository.loadByIds(routine.getExerciseIds());
     }
 
     @Override
@@ -119,53 +121,5 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                 exercises,
                 routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
         );
-    }
-
-    private static class RoutineDbEntity {
-        private UUID id;
-        private String name;
-        private String routineType;
-        private List<UUID> exerciseIds;
-        private List<Integer> repetitions;
-
-        public UUID getId() {
-            return id;
-        }
-
-        public void setId(UUID id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getRoutineType() {
-            return routineType;
-        }
-
-        public void setRoutineType(String routineType) {
-            this.routineType = routineType;
-        }
-
-        public List<UUID> getExerciseIds() {
-            return exerciseIds;
-        }
-
-        public void setExerciseIds(List<UUID> exerciseIds) {
-            this.exerciseIds = exerciseIds;
-        }
-
-        public List<Integer> getRepetitions() {
-            return repetitions;
-        }
-
-        public void setRepetitions(List<Integer> repetitions) {
-            this.repetitions = repetitions;
-        }
     }
 }

@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
 @Repository
 public class ExerciseRepositoryImpl implements ExerciseRepository {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final Logger logger = LoggerFactory.getLogger(ExerciseRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
     private final File exerciseDbFile;
 
-    public ExerciseRepositoryImpl(JsonDatabaseConfig jsonDatabaseConfig) {
+    public ExerciseRepositoryImpl(ObjectMapper objectMapper,
+                                  JsonDatabaseConfig jsonDatabaseConfig) {
+        this.objectMapper = objectMapper;
         this.jsonDatabaseConfig = jsonDatabaseConfig;
         this.exerciseDbFile = new File(jsonDatabaseConfig.getJson().getExerciseFilepath());
     }

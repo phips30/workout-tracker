@@ -31,7 +31,9 @@ public class Workout {
         this.completedAt = startedAt.plus(getTotalDuration());
     }
 
-    public static Workout of(LocalDateTime startedAt, List<Round> rounds, List<Pair<String, String>> metadata) {
+    public static Workout of(LocalDateTime startedAt,
+                             List<Round> rounds,
+                             List<Pair<String, String>> metadata) {
         return new Workout(startedAt, rounds, metadata);
     }
 
@@ -40,7 +42,21 @@ public class Workout {
                 .reduce(Duration.ZERO, Duration::plus);
     }
 
+
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;
+    }
+
     public LocalDateTime getCompletedAt() {
         return completedAt;
+    }
+
+    public List<Round> getRounds() {
+        return rounds;
+    }
+
+    public List<Pair<String, String>> getMetadata() {
+        return metadata;
     }
 }

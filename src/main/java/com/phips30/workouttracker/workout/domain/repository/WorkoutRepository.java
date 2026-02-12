@@ -7,4 +7,5 @@ import java.util.Set;
 
 public interface WorkoutRepository {
     Set<Workout> loadWorkoutsForRoutine(Routine routine);
+    Workout save(Routine routine, Workout workout);
 }

@@ -14,4 +14,9 @@ public class WorkoutRepositoryImpl implements WorkoutRepository {
     public Set<Workout> loadWorkoutsForRoutine(Routine routine) {
         return Set.of();
     }
+
+    @Override
+    public Workout save(Routine routine, Workout workout) {
+        return null;
+    }
 }

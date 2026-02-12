@@ -2,7 +2,6 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.RandomData;
-import com.phips30.workouttracker.UrlBuilder;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
@@ -20,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static com.phips30.workouttracker.UrlBuilder.buildUrl;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -114,7 +114,7 @@ class RoutineControllerTest {
         when(routineService.loadRoutine(routine.getName()))
                 .thenReturn(routine);
 
-        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exercises", hasSize(2)))
@@ -128,7 +128,7 @@ class RoutineControllerTest {
             throw new RoutineNotFoundException(routine.getName());
         }).when(routineService).loadRoutine(routine.getName());
 
-        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
@@ -143,7 +143,7 @@ class RoutineControllerTest {
             throw new Exception(errorString);
         }).when(routineService).loadRoutine(routine.getName());
 
-        mvc.perform(get(UrlBuilder.buildUrl(endpointUrl, routine.getName().getValue(), "/detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

@@ -2,11 +2,8 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
-import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
-import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
-import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +23,16 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
     private final ExerciseRepositoryImpl exerciseRepository;
+    private final RoutineJsonMapper routineJsonMapper;
 
     public RoutineRepositoryImpl(ObjectMapper objectMapper,
                                  JsonDatabaseConfig jsonDatabaseConfig,
-                                 ExerciseRepositoryImpl exerciseRepository) {
+                                 ExerciseRepositoryImpl exerciseRepository,
+                                 RoutineJsonMapper routineJsonMapper) {
         this.objectMapper = objectMapper;
         this.jsonDatabaseConfig = jsonDatabaseConfig;
         this.exerciseRepository = exerciseRepository;
+        this.routineJsonMapper = routineJsonMapper;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                     .findFirst()
                     .map(r -> {
                         List<Exercise> e = loadExercisesForRoutine(r);
-                        return convertDbEntityToDomain(r, e);
+                        return routineJsonMapper.toDomain(r, e);
                     });
         } catch (IOException e) {
             logger.error("Error parsing the json file for routine name '{}'", routineName, e);
@@ -65,7 +65,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
             return routineDbEntities.stream()
                     .map(r -> {
                         List<Exercise> e = loadExercisesForRoutine(r);
-                        return convertDbEntityToDomain(r, e);
+                        return routineJsonMapper.toDomain(r, e);
                     })
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -95,31 +95,11 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
 
-            RoutineDbEntity routineToSave = convertDomainToDbEntity(routine);
+            RoutineDbEntity routineToSave = routineJsonMapper.toEntity(routine);
             routineDbEntities.add(routineToSave);
             objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), routineDbEntities);
         } catch (IOException e) {
             logger.error("Error adding new routine to database '{}'", routine.getName(), e);
         }
-    }
-
-    private RoutineDbEntity convertDomainToDbEntity(Routine routine) {
-        RoutineDbEntity routineToSave = new RoutineDbEntity();
-        routineToSave.setId(routine.getId().getId());
-        routineToSave.setName(routine.getName().getValue());
-        routineToSave.setRoutineType(routine.getRoutineType().toString());
-        routineToSave.setExerciseIds(routine.getExercises().stream().map(Exercise::getId).map(EntityId::getId).toList());
-        routineToSave.setRepetitions(routine.getRepetitions().stream().map(Repetition::getNumber).toList());
-        return routineToSave;
-    }
-
-    private Routine convertDbEntityToDomain(RoutineDbEntity routineDbEntity, List<Exercise> exercises) {
-        return Routine.of(
-                new EntityId(routineDbEntity.getId()),
-                new RoutineName(routineDbEntity.getName()),
-                RoutineType.valueOf(routineDbEntity.getRoutineType()),
-                exercises,
-                routineDbEntity.getRepetitions().stream().map(Repetition::of).toList()
-        );
     }
 }

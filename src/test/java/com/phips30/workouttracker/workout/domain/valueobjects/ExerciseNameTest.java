@@ -10,7 +10,7 @@ class ExerciseNameTest {
 
     @Test
     public void initExerciseName_shortName_valid() {
-        String name = randomString(3);
+        String name = randomString(4);
         ExerciseName exerciseName = new ExerciseName(name);
         assertEquals(name, exerciseName.getValue());
     }

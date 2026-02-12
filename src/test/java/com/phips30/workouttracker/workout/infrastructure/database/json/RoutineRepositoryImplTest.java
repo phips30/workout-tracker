@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
+import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +42,14 @@ class RoutineRepositoryImplTest {
     private ExerciseRepositoryImpl exerciseRepository;
 
     @Mock
+    private RoutineJsonMapper routineJsonMapper;
+
+    @Mock
     private ObjectMapper objectMapper;
 
-    private final RoutineDbEntity routine = new RoutineDbEntity();
+    private final RoutineDbEntity routineDbEntity = new RoutineDbEntity();
+    private Routine routineDomain;
+    private final UUID routineId = UUID.randomUUID();
     private final RoutineName routineName = new RoutineName(shortString());
     private final RoutineType routineType = RoutineType.AMRAP;
     private final UUID exerciseId = UUID.randomUUID();
@@ -56,21 +64,32 @@ class RoutineRepositoryImplTest {
         when(objectMapper.getTypeFactory())
                 .thenReturn(TypeFactory.defaultInstance());
 
-        routine.setId(UUID.randomUUID());
-        routine.setName(routineName.getValue());
-        routine.setRoutineType(routineType.toString());
-        routine.setExerciseIds(List.of(exerciseId));
-        routine.setRepetitions(List.of(10));
+        routineDbEntity.setId(UUID.randomUUID());
+        routineDbEntity.setName(routineName.getValue());
+        routineDbEntity.setRoutineType(routineType.toString());
+        routineDbEntity.setExerciseIds(List.of(exerciseId));
+        routineDbEntity.setRepetitions(List.of(10));
+
+        routineDomain = Routine.of(
+                new EntityId(routineId),
+                routineName,
+                routineType,
+                List.of(new Exercise(new EntityId(exerciseId), new ExerciseName(shortString()))),
+                List.of(Repetition.of(10))
+        );
     }
 
     @Test
     void loadRoutine_returnsRoutine_whenRoutineExists() throws Exception {
         // given
         when(objectMapper.readValue(any(File.class), any(JavaType.class)))
-                .thenReturn(Set.of(routine));
+                .thenReturn(Set.of(routineDbEntity));
 
         Exercise exercise = mock(Exercise.class);
         when(exerciseRepository.loadByIds(List.of(exerciseId))).thenReturn(List.of(exercise));
+
+        when(routineJsonMapper.toDomain(any(RoutineDbEntity.class), anyList()))
+                .thenReturn(routineDomain);
 
         // when
         Optional<Routine> result = routineRepository.loadRoutine(routineName);

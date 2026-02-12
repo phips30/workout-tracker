@@ -10,7 +10,7 @@ class RoutineNameTest {
 
     @Test
     public void initRoutineName_shortName_valid() {
-        String name = randomString(3);
+        String name = randomString(4);
         RoutineName routineName = new RoutineName(name);
         assertEquals(name, routineName.getValue());
     }

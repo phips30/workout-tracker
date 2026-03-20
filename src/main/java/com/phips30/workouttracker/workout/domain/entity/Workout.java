@@ -1,23 +1,27 @@
 package com.phips30.workouttracker.workout.domain.entity;
 
 
+import com.phips30.workouttracker.workout.domain.util.AssertionHelper;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Round;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Aggregate root workout
  */
 public class Workout {
+    private final EntityId id;
     private final LocalDateTime startedAt;
     private final LocalDateTime completedAt;
     private final List<Round> rounds;
-    private final List<Pair<String, String>> metadata;
+    private final Map<String, Object> metadata;
 
-    private Workout(LocalDateTime startedAt, List<Round> rounds, List<Pair<String, String>> metadata) {
+    private Workout(EntityId id, LocalDateTime startedAt, List<Round> rounds, Map<String, Object> metadata) {
+        AssertionHelper.assertNotNull(id, "Entity id is null");
         if (startedAt == null) {
             throw new IllegalArgumentException("StartedAt is empty");
         }
@@ -25,6 +29,7 @@ public class Workout {
             throw new IllegalArgumentException("Rounds is null or empty");
         }
 
+        this.id = id;
         this.startedAt = startedAt;
         this.rounds = rounds;
         this.metadata = metadata;
@@ -33,8 +38,8 @@ public class Workout {
 
     public static Workout of(LocalDateTime startedAt,
                              List<Round> rounds,
-                             List<Pair<String, String>> metadata) {
-        return new Workout(startedAt, rounds, metadata);
+                             Map<String, Object> metadata) {
+        return new Workout(EntityId.generate(), startedAt, rounds, metadata);
     }
 
     private Duration getTotalDuration() {
@@ -42,7 +47,9 @@ public class Workout {
                 .reduce(Duration.ZERO, Duration::plus);
     }
 
-
+    public EntityId getId() {
+        return id;
+    }
 
     public LocalDateTime getStartedAt() {
         return startedAt;
@@ -56,7 +63,7 @@ public class Workout {
         return rounds;
     }
 
-    public List<Pair<String, String>> getMetadata() {
+    public Map<String, Object> getMetadata() {
         return metadata;
     }
 }

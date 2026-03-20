@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.phips30.workouttracker.RandomData.shortString;
 import static com.phips30.workouttracker.UrlBuilder.buildUrl;
@@ -39,7 +40,7 @@ class WorkoutControllerTest {
     private WorkoutService workoutService;
 
     String routineName = shortString();
-    String endpointUrl = "/api/routines/%s/workouts";
+    String endpointUrl = "/api/routine/%s/workout";
 
     private String generateUrl(String url, String value) {
         return String.format(url, value);
@@ -49,17 +50,16 @@ class WorkoutControllerTest {
     Workout workout = Workout.of(
             LocalDateTime.now(),
             List.of(new Round(Duration.ofMinutes(10))),
-            List.of()
+            Map.of()
     );
 
     NewWorkoutRequest newWorkoutRequest = new NewWorkoutRequest(
             LocalDateTime.now(),
             List.of(new Round(Duration.ofMinutes(10))),
-            List.of());
+            Map.of());
 
     @Test
-    public void addWorkout_addedToDatabase_returns201() throws Exception {
-
+    public void createWorkout_addedToDatabase_returns201() throws Exception {
         mvc.perform(post(buildUrl(endpointUrl, routineName))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(newWorkoutRequest)))

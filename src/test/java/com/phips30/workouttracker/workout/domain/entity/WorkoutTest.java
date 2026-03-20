@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +31,7 @@ class WorkoutTest {
         Workout workout = Workout.of(
                 startedAt,
                 rounds,
-                new ArrayList<>()
+                Map.of()
         );
 
         assertEquals(LocalDateTime.of(

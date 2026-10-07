@@ -21,6 +21,7 @@ public class JsonDatabaseConfig {
     public static class Json {
         private String routineFilepath;
         private String exerciseFilepath;
+        private String workoutSessionFilepath;
 
         public String getRoutineFilepath() {
             return routineFilepath;
@@ -36,6 +37,14 @@ public class JsonDatabaseConfig {
 
         public void setExerciseFilepath(String exerciseFilepath) {
             this.exerciseFilepath = exerciseFilepath;
+        }
+
+        public String getWorkoutSessionFilepath() {
+            return workoutSessionFilepath;
+        }
+
+        public void setWorkoutSessionFilepath(String workoutSessionFilepath) {
+            this.workoutSessionFilepath = workoutSessionFilepath;
         }
     }
 }

@@ -13,9 +13,10 @@ Base package: `com.phips30.workouttracker.workout`
 ### domain
 Business model and rules. No dependency on Spring, Jackson or any other layer.
 
-- `entity`: aggregates and entities (`Routine`, `Workout`, `Exercise`). Aggregates are created with `createNew(...)` (generates an id) or reconstituted from storage with `of(id, ...)`, and never expose mutable collections. A `Workout` references its `Routine` by `routineId`.
+- `entity`: aggregates and entities (`Routine`, `WorkoutSession`, `Exercise`). Aggregates are created with `createNew(...)` (generates an id) or reconstituted from storage with `of(id, ...)`, and never expose mutable collections. A `WorkoutSession` references its `Routine` by `routineId`.
   - A `Routine` consists of ordered `RoutineBlock`s (position, rounds), each consisting of ordered `RoutineBlockItem`s (position, `Exercise`, `Repetition` as number or seconds). Blocks and items have no identity of their own, are immutable and part of the `Routine` aggregate. Positions start at 1 and must be unique and gapless within their parent.
-- `valueobjects`: immutable, self-validating types (`EntityId`, `RoutineName`, `ExerciseName`, `Repetition`, `RepetitionType`, `Round`). Value objects are final, immutable and implement `equals`/`hashCode`.
+  - A `WorkoutSession` is one execution of a routine: a start time, free-form `metadata` (e.g. the added weight) and `WorkoutSessionEntry`s. An entry (immutable, part of the aggregate) references a routine block item by block position, item position and round, and holds the completed repetitions for `NUMBER` items or whether the item was completed for `SECONDS` items. `WorkoutSession.createNew(routine, ...)` validates that every entry references an existing item and round of the routine and appears only once.
+- `valueobjects`: immutable, self-validating types (`EntityId`, `RoutineName`, `ExerciseName`, `Repetition`, `RepetitionType`). Value objects are final, immutable and implement `equals`/`hashCode`.
 - `repository`: repository interfaces (ports) implemented by infrastructure
 - `service`: domain services that enforce business rules needing repository access: `ExerciseFactory` (exercise names are unique) and `RoutineFactory` (routine names are unique, every referenced exercise exists)
 - `exceptions`: domain exceptions
@@ -24,9 +25,9 @@ Business model and rules. No dependency on Spring, Jackson or any other layer.
 ### application
 Use cases that orchestrate the domain. Plain Java, no Spring annotations. May depend on `domain` only.
 
-- `usecase`: `ExerciseService`, `RoutineService`, `WorkoutService`
-- `command`: input objects for use cases (`CreateRoutineCommand`, `CreateWorkoutCommand`)
-- `result`: output objects returned by use cases (`ExerciseResult`, `RoutineResult`, `RoutineDetailResult`, `RoutineBlockResult`, `WorkoutResult`, ...). They contain only primitives, strings, time types and other results, and are created from domain objects via `from(...)` factory methods.
+- `usecase`: `ExerciseService`, `RoutineService`, `WorkoutSessionService`
+- `command`: input objects for use cases (`CreateRoutineCommand`, `CreateWorkoutSessionCommand`)
+- `result`: output objects returned by use cases (`ExerciseResult`, `RoutineResult`, `RoutineDetailResult`, `RoutineBlockResult`, `WorkoutSessionResult`, ...). They contain only primitives, strings, time types and other results, and are created from domain objects via `from(...)` factory methods.
 
 ### infrastructure
 Adapters and framework code. May depend on `application` and `domain`.

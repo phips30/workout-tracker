@@ -24,6 +24,7 @@ public class JsonDatabaseSetup {
     public void createJsonFile() throws IOException {
         createDbFiles(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()));
         createDbFiles(new File(jsonDatabaseConfig.getJson().getExerciseFilepath()));
+        createDbFiles(new File(jsonDatabaseConfig.getJson().getWorkoutSessionFilepath()));
     }
 
     private void createDbFiles(File jsonDbFile) throws IOException {

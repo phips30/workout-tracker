@@ -35,7 +35,7 @@ The backend is written purely in Java, with a focus on separation of concerns an
 The architecture consists of the following layers:
 
  - Domain Layer: Core domain models, value objects, domain services and the repository interfaces (ports). It has no dependency on any other layer or framework.
- - Application Layer: The use cases (`ExerciseService`, `RoutineService`, `WorkoutService`) that orchestrate the domain. It depends on the domain only.
+ - Application Layer: The use cases (`ExerciseService`, `RoutineService`, `WorkoutSessionService`) that orchestrate the domain. It depends on the domain only.
  - Infrastructure Layer: Adapters and framework code: the RESTful API built with Spring Boot, the JSON file persistence implementing the repository ports, and the wiring of the use cases.
 
 Dependencies only point inward (infrastructure -> application -> domain). See [documentation/architecture.md](documentation/architecture.md) for details.

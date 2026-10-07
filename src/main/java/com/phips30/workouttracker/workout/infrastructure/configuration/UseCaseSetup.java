@@ -2,10 +2,10 @@ package com.phips30.workouttracker.workout.infrastructure.configuration;
 
 import com.phips30.workouttracker.workout.application.usecase.ExerciseService;
 import com.phips30.workouttracker.workout.application.usecase.RoutineService;
-import com.phips30.workouttracker.workout.application.usecase.WorkoutService;
+import com.phips30.workouttracker.workout.application.usecase.WorkoutSessionService;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
-import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
+import com.phips30.workouttracker.workout.domain.repository.WorkoutSessionRepository;
 import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.service.RoutineFactory;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +35,7 @@ public class UseCaseSetup {
     }
 
     @Bean
-    public WorkoutService workoutService(RoutineRepository routineRepository, WorkoutRepository workoutRepository) {
-        return new WorkoutService(routineRepository, workoutRepository);
+    public WorkoutSessionService workoutSessionService(RoutineRepository routineRepository, WorkoutSessionRepository workoutSessionRepository) {
+        return new WorkoutSessionService(routineRepository, workoutSessionRepository);
     }
 }

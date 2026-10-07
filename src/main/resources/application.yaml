@@ -8,3 +8,4 @@ database:
   json:
     routineFilepath: ./routine-db.json
     exerciseFilepath: ./exercise-db.json
+    workoutSessionFilepath: ./workout-session-db.json

@@ -23,7 +23,7 @@ a high degree of customization, while also ensuring the security and privacy of 
 ### Target architecture
 ![Target Architecture](architecture/target-architecture.drawio.png)
 
-### Minimum viable product
+### Minimum viable product (MVP)
 The MVP of the workout tracking app is currently in the development stage. 
 The goal of the MVP is to provide a basic implementation of the app's core functionality, 
 focusing on tracking workouts and storing data locally.

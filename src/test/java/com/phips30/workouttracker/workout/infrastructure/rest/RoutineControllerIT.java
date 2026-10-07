@@ -4,7 +4,7 @@ import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseRespon
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
-import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineRespone;
+import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +39,7 @@ class RoutineControllerIT {
         ResponseEntity<Void> postReponse = restTemplate.postForEntity("/api/routine", routine, Void.class);
         assertThat(postReponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        ResponseEntity<List<RoutineRespone>> getResponse = restTemplate
+        ResponseEntity<List<RoutineResponse>> getResponse = restTemplate
                 .exchange("/api/routine", HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
 
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);

@@ -14,7 +14,7 @@ import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineBlockIt
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineBlockRequest;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineBlockResponse;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineDetailResponse;
-import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineRespone;
+import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoutineResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +46,9 @@ public class RoutineController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RoutineRespone>> getRoutines() {
+    public ResponseEntity<List<RoutineResponse>> getRoutines() {
         return ResponseEntity.ok(routineService.loadRoutines().stream()
-                .map(r -> new RoutineRespone(r.name(), r.routineType()))
+                .map(r -> new RoutineResponse(r.name(), r.routineType()))
                 .toList());
     }
 

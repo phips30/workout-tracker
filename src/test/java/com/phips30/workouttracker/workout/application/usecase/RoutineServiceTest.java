@@ -12,6 +12,7 @@ import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExists
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.Test;
@@ -53,10 +54,14 @@ class RoutineServiceTest {
                 List.of(5, 10));
     }
 
+    private List<EntityId> entityIds(CreateRoutineCommand command) {
+        return command.exerciseIds().stream().map(EntityId::new).toList();
+    }
+
     @Test
     public void createRoutine_doesNotExist_savesRoutine() throws RoutineAlreadyExistsException {
         CreateRoutineCommand command = createCommand();
-        when(exerciseRepository.loadByIds(command.exerciseIds())).thenReturn(List.of(exercise1, exercise2));
+        when(exerciseRepository.loadByIds(entityIds(command))).thenReturn(List.of(exercise1, exercise2));
         when(routineRepository.exists(new RoutineName(routineName))).thenReturn(false);
 
         routineService.createRoutine(command);
@@ -73,7 +78,7 @@ class RoutineServiceTest {
     @Test
     public void createRoutine_alreadyExists_throwsError() {
         CreateRoutineCommand command = createCommand();
-        when(exerciseRepository.loadByIds(command.exerciseIds())).thenReturn(List.of(exercise1, exercise2));
+        when(exerciseRepository.loadByIds(entityIds(command))).thenReturn(List.of(exercise1, exercise2));
         when(routineRepository.exists(new RoutineName(routineName))).thenReturn(true);
 
         RoutineAlreadyExistsException exception =
@@ -87,7 +92,7 @@ class RoutineServiceTest {
     public void createRoutine_unknownRoutineType_throwsError() {
         CreateRoutineCommand command = new CreateRoutineCommand(
                 routineName, "UNKNOWN", List.of(exercise1.getId().getId()), List.of(5));
-        when(exerciseRepository.loadByIds(command.exerciseIds())).thenReturn(List.of(exercise1));
+        when(exerciseRepository.loadByIds(entityIds(command))).thenReturn(List.of(exercise1));
 
         assertThrows(IllegalArgumentException.class, () -> routineService.createRoutine(command));
         verify(routineRepository, never()).saveRoutine(any());

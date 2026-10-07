@@ -17,10 +17,11 @@ public class ExerciseService {
     }
 
     public ExerciseResult create(String name) throws ExerciseAlreadyExistsException {
-        if (exerciseRepository.exists(name)) {
+        ExerciseName exerciseName = new ExerciseName(name);
+        if (exerciseRepository.exists(exerciseName)) {
             throw new ExerciseAlreadyExistsException(name);
         }
-        Exercise savedExercise = exerciseRepository.save(new Exercise(new ExerciseName(name)));
+        Exercise savedExercise = exerciseRepository.save(new Exercise(exerciseName));
         return ExerciseResult.from(savedExercise);
     }
 

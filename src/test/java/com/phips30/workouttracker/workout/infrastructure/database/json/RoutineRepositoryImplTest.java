@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
@@ -39,7 +40,7 @@ class RoutineRepositoryImplTest {
     private JsonDatabaseConfig jsonDatabaseConfig;
 
     @Mock
-    private ExerciseRepositoryImpl exerciseRepository;
+    private ExerciseRepository exerciseRepository;
 
     @Mock
     private RoutineJsonMapper routineJsonMapper;
@@ -86,7 +87,7 @@ class RoutineRepositoryImplTest {
                 .thenReturn(Set.of(routineDbEntity));
 
         Exercise exercise = mock(Exercise.class);
-        when(exerciseRepository.loadByIds(List.of(exerciseId))).thenReturn(List.of(exercise));
+        when(exerciseRepository.loadByIds(List.of(new EntityId(exerciseId)))).thenReturn(List.of(exercise));
 
         when(routineJsonMapper.toDomain(any(RoutineDbEntity.class), anyList()))
                 .thenReturn(routineDomain);

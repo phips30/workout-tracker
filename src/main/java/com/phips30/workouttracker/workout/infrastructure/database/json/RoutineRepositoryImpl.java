@@ -2,8 +2,10 @@ package com.phips30.workouttracker.workout.infrastructure.database.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +24,12 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
-    private final ExerciseRepositoryImpl exerciseRepository;
+    private final ExerciseRepository exerciseRepository;
     private final RoutineJsonMapper routineJsonMapper;
 
     public RoutineRepositoryImpl(ObjectMapper objectMapper,
                                  JsonDatabaseConfig jsonDatabaseConfig,
-                                 ExerciseRepositoryImpl exerciseRepository,
+                                 ExerciseRepository exerciseRepository,
                                  RoutineJsonMapper routineJsonMapper) {
         this.objectMapper = objectMapper;
         this.jsonDatabaseConfig = jsonDatabaseConfig;
@@ -75,7 +77,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     private List<Exercise> loadExercisesForRoutine(RoutineDbEntity routine) {
-        return exerciseRepository.loadByIds(routine.getExerciseIds());
+        return exerciseRepository.loadByIds(routine.getExerciseIds().stream().map(EntityId::new).toList());
     }
 
     @Override

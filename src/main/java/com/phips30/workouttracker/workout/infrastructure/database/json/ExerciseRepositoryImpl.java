@@ -32,7 +32,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public boolean exists(String exerciseName) {
+    public boolean exists(ExerciseName exerciseName) {
         try {
             if (exerciseDbFile.length() == 0) {
                 return false;
@@ -43,7 +43,7 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
 
             return exerciseDbEntities.stream()
-                    .anyMatch(exercise -> Objects.equals(exercise.getName(), exerciseName));
+                    .anyMatch(exercise -> Objects.equals(exercise.getName(), exerciseName.getValue()));
         } catch (IOException e) {
             logger.error("Error parsing the json file for exercise name '{}'", exerciseName, e);
         }
@@ -88,14 +88,15 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     }
 
     @Override
-    public List<Exercise> loadByIds(List<UUID> exerciseIds) {
+    public List<Exercise> loadByIds(List<EntityId> exerciseIds) {
+        List<UUID> ids = exerciseIds.stream().map(EntityId::getId).toList();
         try {
             List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
 
             return exerciseDbEntities.stream()
-                    .filter(e -> exerciseIds.contains(e.id))
+                    .filter(e -> ids.contains(e.id))
                     .map(this::convertDbEntityToDomain)
                     .collect(Collectors.toList());
         } catch (IOException e) {

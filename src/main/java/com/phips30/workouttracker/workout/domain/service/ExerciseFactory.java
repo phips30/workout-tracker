@@ -14,10 +14,11 @@ public class ExerciseFactory {
     }
 
     public Exercise of(String name) throws ExerciseAlreadyExistsException {
-        if (exerciseRepository.exists(name)) {
+        ExerciseName exerciseName = new ExerciseName(name);
+        if (exerciseRepository.exists(exerciseName)) {
             throw new ExerciseAlreadyExistsException(name);
         }
-        return new Exercise(new ExerciseName(name));
+        return new Exercise(exerciseName);
     }
 
 }

@@ -1,13 +1,14 @@
 package com.phips30.workouttracker.workout.domain.repository;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
+import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ExerciseRepository {
-    boolean exists(String name);
+    boolean exists(ExerciseName name);
     Exercise save(Exercise exercise);
     List<Exercise> loadAll();
-    List<Exercise> loadByIds(List<UUID> exerciseIds);
+    List<Exercise> loadByIds(List<EntityId> exerciseIds);
 }

@@ -40,6 +40,8 @@ Adapters and framework code. May depend on `application` and `domain`.
 - `application` must not import from `infrastructure`.
 - Domain entities and value objects never leave the application layer: use cases accept commands/primitives and return results. Controllers and DTOs must not import `domain.entity` or `domain.valueobjects` (domain exceptions are the only domain types used outside).
 - Use cases are registered as beans in `infrastructure/configuration/UseCaseSetup`, not annotated themselves.
+- Repository ports (`domain/repository`) use domain types (`EntityId`, `ExerciseName`, `RoutineName`, entities) in their signatures, never raw `String`/`UUID`. Adapters convert to and from their storage types.
+- Adapters depend on ports, not on other adapters: e.g. `RoutineRepositoryImpl` is injected with `ExerciseRepository`, not `ExerciseRepositoryImpl`.
 - Persistence models (`*DbEntity`) stay inside the database adapter and are mapped to domain objects.
 
 ## Tests

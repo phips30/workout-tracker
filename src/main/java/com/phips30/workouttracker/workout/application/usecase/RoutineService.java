@@ -10,6 +10,7 @@ import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExists
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 
@@ -25,7 +26,7 @@ public class RoutineService {
     }
 
     public void createRoutine(CreateRoutineCommand command) throws RoutineAlreadyExistsException {
-        List<Exercise> exercises = exerciseRepository.loadByIds(command.exerciseIds());
+        List<Exercise> exercises = exerciseRepository.loadByIds(command.exerciseIds().stream().map(EntityId::new).toList());
 
         Routine routine = Routine.createNew(
                 new RoutineName(command.name()),

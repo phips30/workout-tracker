@@ -30,7 +30,7 @@ class ExerciseServiceTest {
     @Test
     public void createExercise_alreadyExists_throwsError() throws ExerciseAlreadyExistsException {
         try {
-            when(exerciseRepository.exists(exerciseName)).thenReturn(true);
+            when(exerciseRepository.exists(new ExerciseName(exerciseName))).thenReturn(true);
             exerciseService.create(exerciseName);
             fail("Expected Exception");
         } catch (Exception e) {
@@ -62,7 +62,7 @@ class ExerciseServiceTest {
     public void createExercise_validNameAndDoesNotExist_returnsExerciseResult() throws ExerciseAlreadyExistsException {
         Exercise savedExercise = new Exercise(new ExerciseName(exerciseName));
 
-        when(exerciseRepository.exists(exerciseName)).thenReturn(false);
+        when(exerciseRepository.exists(new ExerciseName(exerciseName))).thenReturn(false);
         when(exerciseRepository.save(ArgumentMatchers.any(Exercise.class))).thenReturn(savedExercise);
 
         ExerciseResult exercise = exerciseService.create(exerciseName);

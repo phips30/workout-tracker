@@ -3,6 +3,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 import com.phips30.workouttracker.workout.application.command.CreateRoutineCommand;
 import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
 import com.phips30.workouttracker.workout.application.usecase.RoutineService;
+import com.phips30.workouttracker.workout.domain.exceptions.ExerciseNotFoundException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseResponse;
@@ -31,7 +32,7 @@ public class RoutineController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) throws RoutineAlreadyExistsException {
+    public ResponseEntity<Void> addRoutine(@RequestBody NewRoutineRequest routineRequest) throws RoutineAlreadyExistsException, ExerciseNotFoundException {
         routineService.createRoutine(new CreateRoutineCommand(
                 routineRequest.name(),
                 routineRequest.routineType(),

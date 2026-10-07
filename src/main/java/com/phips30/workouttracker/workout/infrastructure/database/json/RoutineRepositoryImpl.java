@@ -88,10 +88,6 @@ public class RoutineRepositoryImpl implements RoutineRepository {
 
     @Override
     public void saveRoutine(Routine routine) {
-        if(exists(routine.getName())) {
-            return;
-        }
-
         try {
             List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
                     new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),

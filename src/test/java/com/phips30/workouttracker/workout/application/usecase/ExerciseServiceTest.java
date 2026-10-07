@@ -5,11 +5,12 @@ import com.phips30.workouttracker.workout.application.result.ExerciseResult;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,10 +23,15 @@ import static org.mockito.Mockito.when;
 class ExerciseServiceTest {
     private final String exerciseName = RandomData.shortString();
 
-    @InjectMocks
-    private ExerciseService exerciseService;
     @Mock
     private ExerciseRepository exerciseRepository;
+
+    private ExerciseService exerciseService;
+
+    @BeforeEach
+    void setUp() {
+        exerciseService = new ExerciseService(exerciseRepository, new ExerciseFactory(exerciseRepository));
+    }
 
     @Test
     public void createExercise_alreadyExists_throwsError() throws ExerciseAlreadyExistsException {

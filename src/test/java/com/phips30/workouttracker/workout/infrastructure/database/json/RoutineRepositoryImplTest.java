@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -122,5 +123,16 @@ class RoutineRepositoryImplTest {
                 routineRepository.loadRoutine(new RoutineName(shortString()));
         assertTrue(result.isEmpty());
         verifyNoInteractions(exerciseRepository);
+    }
+
+    @Test
+    void saveRoutine_writesRoutineToJson() throws Exception {
+        List<RoutineDbEntity> existingEntities = new ArrayList<>();
+        when(objectMapper.readValue(any(File.class), any(JavaType.class))).thenReturn(existingEntities);
+        when(routineJsonMapper.toEntity(routineDomain)).thenReturn(routineDbEntity);
+
+        routineRepository.saveRoutine(routineDomain);
+
+        verify(objectMapper).writeValue(any(File.class), eq(List.of(routineDbEntity)));
     }
 }

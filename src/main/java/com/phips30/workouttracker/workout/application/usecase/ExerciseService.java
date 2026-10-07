@@ -4,6 +4,7 @@ import com.phips30.workouttracker.workout.application.result.ExerciseResult;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
+import com.phips30.workouttracker.workout.domain.service.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 import java.util.List;
@@ -11,18 +12,16 @@ import java.util.List;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseFactory exerciseFactory;
 
-    public ExerciseService(ExerciseRepository exerciseRepository) {
+    public ExerciseService(ExerciseRepository exerciseRepository, ExerciseFactory exerciseFactory) {
         this.exerciseRepository = exerciseRepository;
+        this.exerciseFactory = exerciseFactory;
     }
 
     public ExerciseResult create(String name) throws ExerciseAlreadyExistsException {
-        ExerciseName exerciseName = new ExerciseName(name);
-        if (exerciseRepository.exists(exerciseName)) {
-            throw new ExerciseAlreadyExistsException(name);
-        }
-        Exercise savedExercise = exerciseRepository.save(new Exercise(exerciseName));
-        return ExerciseResult.from(savedExercise);
+        Exercise exercise = exerciseFactory.of(new ExerciseName(name));
+        return ExerciseResult.from(exerciseRepository.save(exercise));
     }
 
     public List<ExerciseResult> loadAll() {

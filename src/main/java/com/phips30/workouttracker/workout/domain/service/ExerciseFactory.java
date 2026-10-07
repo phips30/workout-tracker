@@ -5,6 +5,9 @@ import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
+/**
+ * Creates new exercises and guarantees that exercise names are unique
+ */
 public class ExerciseFactory {
 
     private final ExerciseRepository exerciseRepository;
@@ -13,12 +16,11 @@ public class ExerciseFactory {
         this.exerciseRepository = exerciseRepository;
     }
 
-    public Exercise of(String name) throws ExerciseAlreadyExistsException {
-        ExerciseName exerciseName = new ExerciseName(name);
-        if (exerciseRepository.exists(exerciseName)) {
-            throw new ExerciseAlreadyExistsException(name);
+    public Exercise of(ExerciseName name) throws ExerciseAlreadyExistsException {
+        if (exerciseRepository.exists(name)) {
+            throw new ExerciseAlreadyExistsException(name.getValue());
         }
-        return new Exercise(exerciseName);
+        return new Exercise(name);
     }
 
 }

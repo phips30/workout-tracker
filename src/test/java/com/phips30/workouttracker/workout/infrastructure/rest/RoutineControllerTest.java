@@ -7,8 +7,10 @@ import com.phips30.workouttracker.workout.application.command.CreateRoutineComma
 import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
 import com.phips30.workouttracker.workout.application.result.RoutineResult;
 import com.phips30.workouttracker.workout.application.usecase.RoutineService;
+import com.phips30.workouttracker.workout.domain.exceptions.ExerciseNotFoundException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
+import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.junit.jupiter.api.Test;
@@ -79,6 +81,23 @@ class RoutineControllerTest {
                         .content(objectMapper.writeValueAsString(routine))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").isNotEmpty())
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
+    public void addRoutine_exerciseDoesNotExist_returns404() throws Exception {
+        NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
+        doAnswer((invocation) -> {
+            throw new ExerciseNotFoundException(new EntityId(UUID.fromString(routine.exerciseIds().getFirst())));
+        }).when(routineService)
+                .createRoutine(toCommand(routine));
+
+        mvc.perform(post(endpointUrl)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(routine))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
                 .andExpect(jsonPath("$.message").isNotEmpty());
     }

@@ -7,8 +7,7 @@ import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.phips30.workouttracker.workout.infrastructure.database.PersistenceException;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
@@ -20,8 +19,6 @@ import java.util.stream.Collectors;
 public class RoutineRepositoryImpl implements RoutineRepository {
 
     private final ObjectMapper objectMapper;
-
-    private final Logger logger = LoggerFactory.getLogger(RoutineRepositoryImpl.class);
 
     private final JsonDatabaseConfig jsonDatabaseConfig;
     private final ExerciseRepository exerciseRepository;
@@ -40,11 +37,7 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     @Override
     public Optional<Routine> loadRoutine(RoutineName routineName) {
         try {
-            Set<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(Set.class, RoutineDbEntity.class));
-
-            return routineDbEntities.stream()
+            return readRoutines().stream()
                     .filter(routine -> Objects.equals(routine.getName(), routineName.getValue()))
                     .findFirst()
                     .map(r -> {
@@ -52,28 +45,23 @@ public class RoutineRepositoryImpl implements RoutineRepository {
                         return routineJsonMapper.toDomain(r, e);
                     });
         } catch (IOException e) {
-            logger.error("Error parsing the json file for routine name '{}'", routineName, e);
+            throw new PersistenceException(
+                    String.format("Failed to load routine '%s'", routineName), e);
         }
-        return Optional.empty();
     }
 
     @Override
     public List<Routine> loadRoutines() {
         try {
-            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
-
-            return routineDbEntities.stream()
+            return readRoutines().stream()
                     .map(r -> {
                         List<Exercise> e = loadExercisesForRoutine(r);
                         return routineJsonMapper.toDomain(r, e);
                     })
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            logger.error("Error parsing the json file", e);
+            throw new PersistenceException("Failed to load routines", e);
         }
-        return new ArrayList<>();
     }
 
     private List<Exercise> loadExercisesForRoutine(RoutineDbEntity routine) {
@@ -89,15 +77,29 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     @Override
     public void saveRoutine(Routine routine) {
         try {
-            List<RoutineDbEntity> routineDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getRoutineFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
-
-            RoutineDbEntity routineToSave = routineJsonMapper.toEntity(routine);
-            routineDbEntities.add(routineToSave);
-            objectMapper.writeValue(new File(jsonDatabaseConfig.getJson().getRoutineFilepath()), routineDbEntities);
+            List<RoutineDbEntity> routineDbEntities = readRoutines();
+            routineDbEntities.add(routineJsonMapper.toEntity(routine));
+            objectMapper.writeValue(routineDbFile(), routineDbEntities);
         } catch (IOException e) {
-            logger.error("Error adding new routine to database '{}'", routine.getName(), e);
+            throw new PersistenceException(
+                    String.format("Failed to save routine '%s'", routine.getName()), e);
         }
+    }
+
+    private File routineDbFile() {
+        return new File(jsonDatabaseConfig.getJson().getRoutineFilepath());
+    }
+
+    /**
+     * Reads all stored routines. A completely empty file is treated as an empty database.
+     */
+    private List<RoutineDbEntity> readRoutines() throws IOException {
+        File routineDbFile = routineDbFile();
+        if (routineDbFile.exists() && routineDbFile.length() == 0) {
+            return new ArrayList<>();
+        }
+        return objectMapper.readValue(
+                routineDbFile,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, RoutineDbEntity.class));
     }
 }

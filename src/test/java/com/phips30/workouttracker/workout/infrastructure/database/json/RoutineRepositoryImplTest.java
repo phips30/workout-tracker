@@ -11,6 +11,7 @@ import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
+import com.phips30.workouttracker.workout.infrastructure.database.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.phips30.workouttracker.RandomData.*;
@@ -85,7 +85,7 @@ class RoutineRepositoryImplTest {
     void loadRoutine_returnsRoutine_whenRoutineExists() throws Exception {
         // given
         when(objectMapper.readValue(any(File.class), any(JavaType.class)))
-                .thenReturn(Set.of(routineDbEntity));
+                .thenReturn(List.of(routineDbEntity));
 
         Exercise exercise = mock(Exercise.class);
         when(exerciseRepository.loadByIds(List.of(new EntityId(exerciseId)))).thenReturn(List.of(exercise));
@@ -108,7 +108,7 @@ class RoutineRepositoryImplTest {
 
     @Test
     void loadRoutine_noRoutinesInJson_returnsNothing() throws IOException {
-        when(objectMapper.readValue(any(File.class), any(JavaType.class))).thenReturn(Set.of());
+        when(objectMapper.readValue(any(File.class), any(JavaType.class))).thenReturn(List.of());
         Optional<Routine> result = routineRepository
                 .loadRoutine(new RoutineName(shortString()));
         assertTrue(result.isEmpty());
@@ -116,13 +116,51 @@ class RoutineRepositoryImplTest {
     }
 
     @Test
-    void loadRoutine_IOExceptionOccurs_returnsEmptyOptional() throws Exception {
+    void loadRoutine_IOExceptionOccurs_throwsPersistenceException() throws Exception {
+        IOException ioException = new IOException();
+        when(objectMapper.readValue(any(File.class), any(JavaType.class)))
+                .thenThrow(ioException);
+
+        PersistenceException exception = assertThrows(PersistenceException.class,
+                () -> routineRepository.loadRoutine(new RoutineName(shortString())));
+
+        assertSame(ioException, exception.getCause());
+        verifyNoInteractions(exerciseRepository);
+    }
+
+    @Test
+    void loadRoutines_IOExceptionOccurs_throwsPersistenceException() throws Exception {
         when(objectMapper.readValue(any(File.class), any(JavaType.class)))
                 .thenThrow(new IOException());
-        Optional<Routine> result =
-                routineRepository.loadRoutine(new RoutineName(shortString()));
-        assertTrue(result.isEmpty());
-        verifyNoInteractions(exerciseRepository);
+
+        assertThrows(PersistenceException.class, () -> routineRepository.loadRoutines());
+    }
+
+    @Test
+    void exists_IOExceptionOccurs_throwsPersistenceException() throws Exception {
+        when(objectMapper.readValue(any(File.class), any(JavaType.class)))
+                .thenThrow(new IOException());
+
+        assertThrows(PersistenceException.class,
+                () -> routineRepository.exists(new RoutineName(shortString())));
+    }
+
+    @Test
+    void saveRoutine_readingFailsWithIOException_throwsPersistenceException() throws Exception {
+        when(objectMapper.readValue(any(File.class), any(JavaType.class)))
+                .thenThrow(new IOException());
+
+        assertThrows(PersistenceException.class, () -> routineRepository.saveRoutine(routineDomain));
+        verify(objectMapper, never()).writeValue(any(File.class), any());
+    }
+
+    @Test
+    void saveRoutine_writingFailsWithIOException_throwsPersistenceException() throws Exception {
+        when(objectMapper.readValue(any(File.class), any(JavaType.class))).thenReturn(new ArrayList<RoutineDbEntity>());
+        when(routineJsonMapper.toEntity(routineDomain)).thenReturn(routineDbEntity);
+        doThrow(new IOException()).when(objectMapper).writeValue(any(File.class), any());
+
+        assertThrows(PersistenceException.class, () -> routineRepository.saveRoutine(routineDomain));
     }
 
     @Test

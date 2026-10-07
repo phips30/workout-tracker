@@ -5,8 +5,7 @@ import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.phips30.workouttracker.workout.infrastructure.database.PersistenceException;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
@@ -19,54 +18,34 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
 
     private final ObjectMapper objectMapper;
 
-    private final Logger logger = LoggerFactory.getLogger(ExerciseRepositoryImpl.class);
-
-    private final JsonDatabaseConfig jsonDatabaseConfig;
     private final File exerciseDbFile;
 
     public ExerciseRepositoryImpl(ObjectMapper objectMapper,
                                   JsonDatabaseConfig jsonDatabaseConfig) {
         this.objectMapper = objectMapper;
-        this.jsonDatabaseConfig = jsonDatabaseConfig;
         this.exerciseDbFile = new File(jsonDatabaseConfig.getJson().getExerciseFilepath());
     }
 
     @Override
     public boolean exists(ExerciseName exerciseName) {
         try {
-            if (exerciseDbFile.length() == 0) {
-                return false;
-            }
-
-            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
-                    exerciseDbFile,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
-
-            return exerciseDbEntities.stream()
+            return readExercises().stream()
                     .anyMatch(exercise -> Objects.equals(exercise.getName(), exerciseName.getValue()));
         } catch (IOException e) {
-            logger.error("Error parsing the json file for exercise name '{}'", exerciseName, e);
+            throw new PersistenceException(
+                    String.format("Failed to read exercises while checking for exercise '%s'", exerciseName), e);
         }
-        return false;
     }
 
     @Override
     public Exercise save(Exercise exercise) {
-        // TODO: Throw exception or return resultobject in case of errors
         try {
-            List<ExerciseDbEntity> exerciseDbEntities = new ArrayList<>();
-
-            if (exerciseDbFile.length() > 0) {
-                exerciseDbEntities = objectMapper.readValue(
-                        new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
-            }
-
-            ExerciseDbEntity exerciseToSave = convertDomainToDbEntity(exercise);
-            exerciseDbEntities.add(exerciseToSave);
+            List<ExerciseDbEntity> exerciseDbEntities = readExercises();
+            exerciseDbEntities.add(convertDomainToDbEntity(exercise));
             objectMapper.writeValue(exerciseDbFile, exerciseDbEntities);
         } catch (IOException e) {
-            logger.error("Error adding new exercise to database '{}'", exercise.getName(), e);
+            throw new PersistenceException(
+                    String.format("Failed to save exercise '%s'", exercise.getName()), e);
         }
         return exercise;
     }
@@ -74,35 +53,37 @@ public class ExerciseRepositoryImpl implements ExerciseRepository {
     @Override
     public List<Exercise> loadAll() {
         try {
-            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
-
-            return exerciseDbEntities.stream()
+            return readExercises().stream()
                     .map(this::convertDbEntityToDomain)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            logger.error("Error parsing the json file", e);
+            throw new PersistenceException("Failed to load exercises", e);
         }
-        return new ArrayList<>();
     }
 
     @Override
     public List<Exercise> loadByIds(List<EntityId> exerciseIds) {
         List<UUID> ids = exerciseIds.stream().map(EntityId::getId).toList();
         try {
-            List<ExerciseDbEntity> exerciseDbEntities = objectMapper.readValue(
-                    new File(jsonDatabaseConfig.getJson().getExerciseFilepath()),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
-
-            return exerciseDbEntities.stream()
+            return readExercises().stream()
                     .filter(e -> ids.contains(e.id))
                     .map(this::convertDbEntityToDomain)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            logger.error("Error parsing the json file", e);
+            throw new PersistenceException("Failed to load exercises by id", e);
         }
-        return new ArrayList<>();
+    }
+
+    /**
+     * Reads all stored exercises. A completely empty file is treated as an empty database.
+     */
+    private List<ExerciseDbEntity> readExercises() throws IOException {
+        if (exerciseDbFile.exists() && exerciseDbFile.length() == 0) {
+            return new ArrayList<>();
+        }
+        return objectMapper.readValue(
+                exerciseDbFile,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, ExerciseDbEntity.class));
     }
 
     private Exercise convertDbEntityToDomain(ExerciseDbEntity exerciseDbEntity) {

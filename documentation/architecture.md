@@ -43,6 +43,7 @@ Adapters and framework code. May depend on `application` and `domain`.
 - Business rules live in the domain (entities, value objects, domain services), not in use cases or adapters. Use cases only orchestrate (call the domain, then persist); adapters only store and load data and must not skip or reject saves on their own.
 - Repository ports (`domain/repository`) use domain types (`EntityId`, `ExerciseName`, `RoutineName`, entities) in their signatures, never raw `String`/`UUID`. Adapters convert to and from their storage types.
 - Adapters depend on ports, not on other adapters: e.g. `RoutineRepositoryImpl` is injected with `ExerciseRepository`, not `ExerciseRepositoryImpl`.
+- Adapters never hide storage failures: if data cannot be read or written they throw `infrastructure.database.PersistenceException` (unchecked, with the original exception as cause) instead of logging and returning an empty result or silently succeeding. The REST exception handler turns it into a 500 response.
 - Persistence models (`*DbEntity`) stay inside the database adapter and are mapped to domain objects.
 
 ## Tests

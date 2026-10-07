@@ -14,111 +14,77 @@ class RoutineTest {
 
     private final RoutineName routineName = new RoutineName("CVP");
     private final RoutineType routineType = RoutineType.AMRAP;
-    private final List<Exercise> exercises = List.of(
-            new Exercise(new ExerciseName("Burpees")),
-            new Exercise(new ExerciseName("Mountain climbers")),
-            new Exercise(new ExerciseName("4-Count burpees")),
-            new Exercise(new ExerciseName("Jumping jacks"))
-    );
-    private final List<Repetition> repetitions = List.of(
-            Repetition.of(10),
-            Repetition.of(40),
-            Repetition.of(10),
-            Repetition.of(10)
-    );
+    private final Exercise burpees = new Exercise(new ExerciseName("Burpees"));
+    private final Exercise mountainClimbers = new Exercise(new ExerciseName("Mountain climbers"));
+
+    private RoutineBlock block(int position) {
+        return RoutineBlock.of(position, 3, List.of(
+                RoutineBlockItem.of(1, burpees, Repetition.of(10)),
+                RoutineBlockItem.of(2, mountainClimbers, Repetition.of(40))));
+    }
 
     @Test
     public void initRoutineWithProperValues() {
-        Routine firstAmrapRoutine = Routine.of(
-                EntityId.generate(),
-                routineName,
-                routineType,
-                exercises,
-                repetitions
-        );
+        Routine routine = Routine.of(EntityId.generate(), routineName, routineType, List.of(block(1), block(2)));
 
-        assertEquals(routineName, firstAmrapRoutine.getName());
-        assertEquals(exercises.size(), firstAmrapRoutine.getExercises().size());
-        assertEquals(repetitions.size(), firstAmrapRoutine.getRepetitions().size());
+        assertEquals(routineName, routine.getName());
+        assertEquals(routineType, routine.getRoutineType());
+        assertEquals(List.of(block(1), block(2)), routine.getBlocks());
+    }
+
+    @Test
+    public void initRoutineWithBlocksOutOfOrder_sortsBlocksByPosition() {
+        Routine routine = Routine.of(EntityId.generate(), routineName, routineType, List.of(block(2), block(1)));
+
+        assertEquals(List.of(1, 2), routine.getBlocks().stream().map(RoutineBlock::getPosition).toList());
+    }
+
+    @Test
+    public void createNew_generatesId() {
+        Routine routine = Routine.createNew(routineName, routineType, List.of(block(1)));
+
+        assertNotNull(routine.getId());
+    }
+
+    @Test
+    public void getBlocks_isNotModifiable() {
+        Routine routine = Routine.of(EntityId.generate(), routineName, routineType, List.of(block(1)));
+
+        assertThrows(UnsupportedOperationException.class, () -> routine.getBlocks().add(block(2)));
     }
 
     @Test
     public void initRoutineWithNoName_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    null,
-                    routineType,
-                    List.of(),
-                    List.of()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("RoutineName id is null", e.getMessage());
-        }
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                Routine.of(EntityId.generate(), null, routineType, List.of(block(1))));
+        assertEquals("RoutineName id is null", e.getMessage());
     }
 
     @Test
     public void initRoutineWithNoRoutineType_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    routineName,
-                    null,
-                    List.of(),
-                    List.of()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("RoutineType is null", e.getMessage());
-        }
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                Routine.of(EntityId.generate(), routineName, null, List.of(block(1))));
+        assertEquals("RoutineType is null", e.getMessage());
     }
 
     @Test
-    public void initRoutineWithNoExercises_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    routineName,
-                    routineType,
-                    List.of(),
-                    List.of()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Exercises is null or empty", e.getMessage());
-        }
+    public void initRoutineWithNoBlocks_throwsException() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                Routine.of(EntityId.generate(), routineName, routineType, List.of()));
+        assertEquals("Blocks is null or empty", e.getMessage());
     }
 
     @Test
-    public void initRoutineWithNoRepetitions_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    routineName,
-                    routineType,
-                    exercises,
-                    List.of()
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Repetitions is null or empty", e.getMessage());
-        }
+    public void initRoutineWithDuplicateBlockPositions_throwsException() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                Routine.of(EntityId.generate(), routineName, routineType, List.of(block(1), block(1))));
+        assertEquals("Block positions must be unique and start at 1 without gaps", e.getMessage());
     }
 
     @Test
-    public void initRoutineWithNotMatchingExercisesAndRepetitions_throwsException() {
-        try {
-            Routine.of(
-                    EntityId.generate(),
-                    routineName,
-                    routineType,
-                    exercises,
-                    List.of(Repetition.of(10))
-            );
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Each exercise must have a corresponding repetition", e.getMessage());
-        }
+    public void initRoutineWithGapInBlockPositions_throwsException() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                Routine.of(EntityId.generate(), routineName, routineType, List.of(block(1), block(3))));
+        assertEquals("Block positions must be unique and start at 1 without gaps", e.getMessage());
     }
 }

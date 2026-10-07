@@ -3,14 +3,19 @@ package com.phips30.workouttracker.workout.domain.service;
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlock;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlockItem;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseNotFoundException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
+import com.phips30.workouttracker.workout.domain.service.RoutineFactory.BlockDefinition;
+import com.phips30.workouttracker.workout.domain.service.RoutineFactory.ItemDefinition;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RepetitionType;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,12 +43,18 @@ class RoutineFactoryTest {
     @Mock
     private ExerciseRepository exerciseRepository;
 
+    private List<BlockDefinition> twoItemBlock() {
+        return List.of(new BlockDefinition(1, 3, List.of(
+                new ItemDefinition(1, exercise1.getId(), Repetition.of(5)),
+                new ItemDefinition(2, exercise2.getId(), Repetition.of(RepetitionType.SECONDS, 30)))));
+    }
+
     @Test
     public void of_routineAlreadyExists_throwsError() {
         when(routineRepository.exists(routineName)).thenReturn(true);
 
         RoutineAlreadyExistsException exception = assertThrows(RoutineAlreadyExistsException.class, () ->
-                routineFactory.of(routineName, RoutineType.AMRAP, List.of(exercise1.getId()), List.of(Repetition.of(5))));
+                routineFactory.of(routineName, RoutineType.AMRAP, twoItemBlock()));
 
         assertEquals(String.format("Routine %s already exists", routineName.getValue()), exception.getMessage());
         verifyNoInteractions(exerciseRepository);
@@ -51,42 +62,65 @@ class RoutineFactoryTest {
 
     @Test
     public void of_exerciseDoesNotExist_throwsError() {
-        List<EntityId> exerciseIds = List.of(exercise1.getId(), exercise2.getId());
         when(routineRepository.exists(routineName)).thenReturn(false);
-        when(exerciseRepository.loadByIds(exerciseIds)).thenReturn(List.of(exercise1));
+        when(exerciseRepository.loadByIds(List.of(exercise1.getId(), exercise2.getId()))).thenReturn(List.of(exercise1));
 
         ExerciseNotFoundException exception = assertThrows(ExerciseNotFoundException.class, () ->
-                routineFactory.of(routineName, RoutineType.AMRAP, exerciseIds, List.of(Repetition.of(5), Repetition.of(10))));
+                routineFactory.of(routineName, RoutineType.AMRAP, twoItemBlock()));
 
         assertEquals(String.format("Exercise %s does not exist", exercise2.getId()), exception.getMessage());
     }
 
     @Test
-    public void of_validInput_returnsRoutineWithExercisesInRequestedOrder()
-            throws RoutineAlreadyExistsException, ExerciseNotFoundException {
-        List<EntityId> exerciseIds = List.of(exercise1.getId(), exercise2.getId());
+    public void of_noBlocks_throwsError() {
         when(routineRepository.exists(routineName)).thenReturn(false);
-        // the repository returns the exercises in a different order than requested
-        when(exerciseRepository.loadByIds(exerciseIds)).thenReturn(List.of(exercise2, exercise1));
 
-        Routine routine = routineFactory.of(
-                routineName, RoutineType.AMRAP, exerciseIds, List.of(Repetition.of(5), Repetition.of(10)));
-
-        assertEquals(routineName, routine.getName());
-        assertEquals(RoutineType.AMRAP, routine.getRoutineType());
-        assertEquals(List.of(exercise1, exercise2), routine.getExercises());
-        assertEquals(List.of(5, 10), routine.getRepetitions().stream().map(Repetition::getNumber).toList());
+        assertThrows(IllegalArgumentException.class, () ->
+                routineFactory.of(routineName, RoutineType.AMRAP, List.of()));
+        verifyNoInteractions(exerciseRepository);
     }
 
     @Test
-    public void of_sameExerciseTwice_keepsBothEntries() throws RoutineAlreadyExistsException, ExerciseNotFoundException {
-        List<EntityId> exerciseIds = List.of(exercise1.getId(), exercise1.getId());
+    public void of_validInput_returnsRoutineWithBlocksAndItems()
+            throws RoutineAlreadyExistsException, ExerciseNotFoundException {
         when(routineRepository.exists(routineName)).thenReturn(false);
-        when(exerciseRepository.loadByIds(exerciseIds)).thenReturn(List.of(exercise1));
+        // the repository returns the exercises in a different order than requested
+        when(exerciseRepository.loadByIds(List.of(exercise1.getId(), exercise2.getId())))
+                .thenReturn(List.of(exercise2, exercise1));
 
-        Routine routine = routineFactory.of(
-                routineName, RoutineType.AMRAP, exerciseIds, List.of(Repetition.of(5), Repetition.of(10)));
+        Routine routine = routineFactory.of(routineName, RoutineType.AMRAP, twoItemBlock());
 
-        assertEquals(List.of(exercise1, exercise1), routine.getExercises());
+        assertEquals(routineName, routine.getName());
+        assertEquals(RoutineType.AMRAP, routine.getRoutineType());
+        assertEquals(List.of(RoutineBlock.of(1, 3, List.of(
+                RoutineBlockItem.of(1, exercise1, Repetition.of(5)),
+                RoutineBlockItem.of(2, exercise2, Repetition.of(RepetitionType.SECONDS, 30))))),
+                routine.getBlocks());
+    }
+
+    @Test
+    public void of_sameExerciseInSeveralBlocks_loadsExerciseOnce() throws RoutineAlreadyExistsException, ExerciseNotFoundException {
+        List<BlockDefinition> blocks = List.of(
+                new BlockDefinition(1, 2, List.of(new ItemDefinition(1, exercise1.getId(), Repetition.of(5)))),
+                new BlockDefinition(2, 4, List.of(
+                        new ItemDefinition(1, exercise1.getId(), Repetition.of(10)),
+                        new ItemDefinition(2, exercise1.getId(), Repetition.of(15)))));
+        when(routineRepository.exists(routineName)).thenReturn(false);
+        when(exerciseRepository.loadByIds(List.of(exercise1.getId()))).thenReturn(List.of(exercise1));
+
+        Routine routine = routineFactory.of(routineName, RoutineType.AMRAP, blocks);
+
+        assertEquals(2, routine.getBlocks().size());
+        assertEquals(exercise1, routine.getBlocks().get(1).getItems().get(1).getExercise());
+    }
+
+    @Test
+    public void of_invalidPositions_throwsError() {
+        List<BlockDefinition> blocks = List.of(new BlockDefinition(1, 3, List.of(
+                new ItemDefinition(2, exercise1.getId(), Repetition.of(5)))));
+        when(routineRepository.exists(routineName)).thenReturn(false);
+        when(exerciseRepository.loadByIds(List.of(exercise1.getId()))).thenReturn(List.of(exercise1));
+
+        assertThrows(IllegalArgumentException.class, () -> routineFactory.of(routineName, RoutineType.AMRAP, blocks));
     }
 }

@@ -1,6 +1,5 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
-import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseResponse;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
@@ -35,8 +34,7 @@ class RoutineControllerIT {
                 .postForEntity("/api/exercise", new NewExerciseRequest(randomString(10)), ExerciseResponse.class);
 
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest(
-                List.of(exercise1.getBody().id(), exercise2.getBody().id()),
-                List.of(RandomData.positiveDigit(), RandomData.positiveDigit()));
+                List.of(exercise1.getBody().id(), exercise2.getBody().id()));
 
         ResponseEntity<Void> postReponse = restTemplate.postForEntity("/api/routine", routine, Void.class);
         assertThat(postReponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);

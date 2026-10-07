@@ -65,7 +65,11 @@ public class RoutineRepositoryImpl implements RoutineRepository {
     }
 
     private List<Exercise> loadExercisesForRoutine(RoutineDbEntity routine) {
-        return exerciseRepository.loadByIds(routine.getExerciseIds().stream().map(EntityId::new).toList());
+        return exerciseRepository.loadByIds(routine.getBlocks().stream()
+                .flatMap(block -> block.getItems().stream())
+                .map(item -> new EntityId(item.getExerciseId()))
+                .distinct()
+                .toList());
     }
 
     @Override

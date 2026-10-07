@@ -7,8 +7,7 @@ class RoutineDbEntity {
     private UUID id;
     private String name;
     private String routineType;
-    private List<UUID> exerciseIds;
-    private List<Integer> repetitions;
+    private List<RoutineBlockDbEntity> blocks;
 
     public UUID getId() {
         return id;
@@ -34,19 +33,11 @@ class RoutineDbEntity {
         this.routineType = routineType;
     }
 
-    public List<UUID> getExerciseIds() {
-        return exerciseIds;
+    public List<RoutineBlockDbEntity> getBlocks() {
+        return blocks;
     }
 
-    public void setExerciseIds(List<UUID> exerciseIds) {
-        this.exerciseIds = exerciseIds;
-    }
-
-    public List<Integer> getRepetitions() {
-        return repetitions;
-    }
-
-    public void setRepetitions(List<Integer> repetitions) {
-        this.repetitions = repetitions;
+    public void setBlocks(List<RoutineBlockDbEntity> blocks) {
+        this.blocks = blocks;
     }
 }

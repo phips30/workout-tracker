@@ -12,6 +12,7 @@ import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.service.RoutineFactory;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RepetitionType;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 
 import java.util.List;
@@ -30,10 +31,23 @@ public class RoutineService {
         Routine routine = routineFactory.of(
                 new RoutineName(command.name()),
                 RoutineType.valueOf(command.routineType()),
-                command.exerciseIds().stream().map(EntityId::new).toList(),
-                command.repetitions().stream().map(Repetition::of).toList());
+                command.blocks().stream().map(RoutineService::toBlockDefinition).toList());
 
         routineRepository.saveRoutine(routine);
+    }
+
+    private static RoutineFactory.BlockDefinition toBlockDefinition(CreateRoutineCommand.Block block) {
+        return new RoutineFactory.BlockDefinition(
+                block.position(),
+                block.rounds(),
+                block.items().stream().map(RoutineService::toItemDefinition).toList());
+    }
+
+    private static RoutineFactory.ItemDefinition toItemDefinition(CreateRoutineCommand.Item item) {
+        Repetition repetition = item.repetitionType() == null
+                ? Repetition.of(item.repetitions())
+                : Repetition.of(RepetitionType.valueOf(item.repetitionType()), item.repetitions());
+        return new RoutineFactory.ItemDefinition(item.position(), new EntityId(item.exerciseId()), repetition);
     }
 
     public RoutineDetailResult loadRoutine(String routineName) throws RoutineNotFoundException {

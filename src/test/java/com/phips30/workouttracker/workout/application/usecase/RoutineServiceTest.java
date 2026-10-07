@@ -3,10 +3,14 @@ package com.phips30.workouttracker.workout.application.usecase;
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.application.command.CreateRoutineCommand;
+import com.phips30.workouttracker.workout.application.result.RoutineBlockItemResult;
+import com.phips30.workouttracker.workout.application.result.RoutineBlockResult;
 import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
 import com.phips30.workouttracker.workout.application.result.RoutineResult;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlock;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlockItem;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseNotFoundException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
@@ -15,6 +19,8 @@ import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.EntityId;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
+import com.phips30.workouttracker.workout.domain.valueobjects.Repetition;
+import com.phips30.workouttracker.workout.domain.valueobjects.RepetitionType;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,18 +64,19 @@ class RoutineServiceTest {
         return new CreateRoutineCommand(
                 routineName,
                 RoutineType.AMRAP.name(),
-                List.of(exercise1.getId().getId(), exercise2.getId().getId()),
-                List.of(5, 10));
+                List.of(new CreateRoutineCommand.Block(1, 3, List.of(
+                        new CreateRoutineCommand.Item(1, exercise1.getId().getId(), "NUMBER", 5),
+                        new CreateRoutineCommand.Item(2, exercise2.getId().getId(), "SECONDS", 30)))));
     }
 
-    private List<EntityId> entityIds(CreateRoutineCommand command) {
-        return command.exerciseIds().stream().map(EntityId::new).toList();
+    private List<EntityId> entityIds() {
+        return List.of(exercise1.getId(), exercise2.getId());
     }
 
     @Test
     public void createRoutine_doesNotExist_savesRoutine() throws RoutineAlreadyExistsException, ExerciseNotFoundException {
         CreateRoutineCommand command = createCommand();
-        when(exerciseRepository.loadByIds(entityIds(command))).thenReturn(List.of(exercise1, exercise2));
+        when(exerciseRepository.loadByIds(entityIds())).thenReturn(List.of(exercise1, exercise2));
         when(routineRepository.exists(new RoutineName(routineName))).thenReturn(false);
 
         routineService.createRoutine(command);
@@ -79,8 +86,10 @@ class RoutineServiceTest {
         Routine saved = captor.getValue();
         assertEquals(routineName, saved.getName().getValue());
         assertEquals(RoutineType.AMRAP, saved.getRoutineType());
-        assertEquals(List.of(exercise1, exercise2), saved.getExercises());
-        assertEquals(List.of(5, 10), saved.getRepetitions().stream().map(r -> r.getNumber()).toList());
+        assertEquals(List.of(RoutineBlock.of(1, 3, List.of(
+                RoutineBlockItem.of(1, exercise1, Repetition.of(5)),
+                RoutineBlockItem.of(2, exercise2, Repetition.of(RepetitionType.SECONDS, 30))))),
+                saved.getBlocks());
     }
 
     @Test
@@ -99,7 +108,7 @@ class RoutineServiceTest {
     public void createRoutine_exerciseDoesNotExist_throwsErrorAndDoesNotSave() {
         CreateRoutineCommand command = createCommand();
         when(routineRepository.exists(new RoutineName(routineName))).thenReturn(false);
-        when(exerciseRepository.loadByIds(entityIds(command))).thenReturn(List.of(exercise1));
+        when(exerciseRepository.loadByIds(entityIds())).thenReturn(List.of(exercise1));
 
         assertThrows(ExerciseNotFoundException.class, () -> routineService.createRoutine(command));
         verify(routineRepository, never()).saveRoutine(any());
@@ -107,8 +116,33 @@ class RoutineServiceTest {
 
     @Test
     public void createRoutine_unknownRoutineType_throwsError() {
-        CreateRoutineCommand command = new CreateRoutineCommand(
-                routineName, "UNKNOWN", List.of(exercise1.getId().getId()), List.of(5));
+        CreateRoutineCommand command = new CreateRoutineCommand(routineName, "UNKNOWN", createCommand().blocks());
+
+        assertThrows(IllegalArgumentException.class, () -> routineService.createRoutine(command));
+        verify(routineRepository, never()).saveRoutine(any());
+    }
+
+    @Test
+    public void createRoutine_noRepetitionType_defaultsToNumber() throws RoutineAlreadyExistsException, ExerciseNotFoundException {
+        CreateRoutineCommand command = new CreateRoutineCommand(routineName, RoutineType.AMRAP.name(), List.of(
+                new CreateRoutineCommand.Block(1, 3, List.of(
+                        new CreateRoutineCommand.Item(1, exercise1.getId().getId(), null, 5)))));
+        when(exerciseRepository.loadByIds(List.of(exercise1.getId()))).thenReturn(List.of(exercise1));
+        when(routineRepository.exists(new RoutineName(routineName))).thenReturn(false);
+
+        routineService.createRoutine(command);
+
+        ArgumentCaptor<Routine> captor = ArgumentCaptor.forClass(Routine.class);
+        verify(routineRepository).saveRoutine(captor.capture());
+        assertEquals(Repetition.of(RepetitionType.NUMBER, 5),
+                captor.getValue().getBlocks().getFirst().getItems().getFirst().getRepetition());
+    }
+
+    @Test
+    public void createRoutine_unknownRepetitionType_throwsError() {
+        CreateRoutineCommand command = new CreateRoutineCommand(routineName, RoutineType.AMRAP.name(), List.of(
+                new CreateRoutineCommand.Block(1, 3, List.of(
+                        new CreateRoutineCommand.Item(1, exercise1.getId().getId(), "UNKNOWN", 5)))));
 
         assertThrows(IllegalArgumentException.class, () -> routineService.createRoutine(command));
         verify(routineRepository, never()).saveRoutine(any());
@@ -135,12 +169,19 @@ class RoutineServiceTest {
 
         RoutineDetailResult details = routineService.loadRoutine(routineName);
 
-        assertEquals(2, details.exercises().size());
-        assertEquals(routine.getExercises().getFirst().getId().getId().toString(), details.exercises().getFirst().id());
-        assertEquals(routine.getExercises().getFirst().getName().getValue(), details.exercises().getFirst().name());
-        assertEquals(2, details.repetitions().size());
-        assertEquals(routine.getRepetitions().getFirst().getNumber(), details.repetitions().getFirst().number());
-        assertEquals(routine.getRepetitions().getFirst().getType().name(), details.repetitions().getFirst().type());
+        RoutineBlock block = routine.getBlocks().getFirst();
+        RoutineBlockItem item = block.getItems().getFirst();
+        assertEquals(1, details.blocks().size());
+        RoutineBlockResult blockResult = details.blocks().getFirst();
+        assertEquals(block.getPosition(), blockResult.position());
+        assertEquals(block.getRounds(), blockResult.rounds());
+        assertEquals(2, blockResult.items().size());
+        RoutineBlockItemResult itemResult = blockResult.items().getFirst();
+        assertEquals(item.getPosition(), itemResult.position());
+        assertEquals(item.getExercise().getId().getId().toString(), itemResult.exercise().id());
+        assertEquals(item.getExercise().getName().getValue(), itemResult.exercise().name());
+        assertEquals(item.getRepetition().getNumber(), itemResult.repetition().number());
+        assertEquals(item.getRepetition().getType().name(), itemResult.repetition().type());
     }
 
     @Test

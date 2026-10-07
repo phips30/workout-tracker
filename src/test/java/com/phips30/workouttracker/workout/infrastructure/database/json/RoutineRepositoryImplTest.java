@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlock;
+import com.phips30.workouttracker.workout.domain.entity.RoutineBlockItem;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
@@ -69,15 +71,25 @@ class RoutineRepositoryImplTest {
         routineDbEntity.setId(UUID.randomUUID());
         routineDbEntity.setName(routineName.getValue());
         routineDbEntity.setRoutineType(routineType.toString());
-        routineDbEntity.setExerciseIds(List.of(exerciseId));
-        routineDbEntity.setRepetitions(List.of(10));
+        RoutineBlockItemDbEntity item = new RoutineBlockItemDbEntity();
+        item.setPosition(1);
+        item.setExerciseId(exerciseId);
+        item.setRepetitionType("NUMBER");
+        item.setRepetitions(10);
+        RoutineBlockDbEntity block = new RoutineBlockDbEntity();
+        block.setPosition(1);
+        block.setRounds(3);
+        block.setItems(List.of(item));
+        routineDbEntity.setBlocks(List.of(block));
 
         routineDomain = Routine.of(
                 new EntityId(routineId),
                 routineName,
                 routineType,
-                List.of(new Exercise(new EntityId(exerciseId), new ExerciseName(shortString()))),
-                List.of(Repetition.of(10))
+                List.of(RoutineBlock.of(1, 3, List.of(RoutineBlockItem.of(
+                        1,
+                        new Exercise(new EntityId(exerciseId), new ExerciseName(shortString())),
+                        Repetition.of(10)))))
         );
     }
 
@@ -102,8 +114,8 @@ class RoutineRepositoryImplTest {
         Routine routine = result.get();
         assertEquals(routineName, routine.getName());
         assertEquals(routineType, routine.getRoutineType());
-        assertEquals(1, routine.getExercises().size());
-        assertEquals(1, routine.getRepetitions().size());
+        assertEquals(1, routine.getBlocks().size());
+        assertEquals(1, routine.getBlocks().getFirst().getItems().size());
     }
 
     @Test

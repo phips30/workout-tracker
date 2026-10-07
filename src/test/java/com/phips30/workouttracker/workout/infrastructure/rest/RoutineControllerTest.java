@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
 import com.phips30.workouttracker.workout.application.command.CreateRoutineCommand;
+import com.phips30.workouttracker.workout.application.result.RoutineBlockItemResult;
+import com.phips30.workouttracker.workout.application.result.RoutineBlockResult;
 import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
 import com.phips30.workouttracker.workout.application.result.RoutineResult;
 import com.phips30.workouttracker.workout.application.usecase.RoutineService;
@@ -52,8 +54,15 @@ class RoutineControllerTest {
         return new CreateRoutineCommand(
                 routine.name(),
                 routine.routineType(),
-                routine.exerciseIds().stream().map(UUID::fromString).toList(),
-                routine.repetitions());
+                routine.blocks().stream()
+                        .map(b -> new CreateRoutineCommand.Block(
+                                b.position(),
+                                b.rounds(),
+                                b.items().stream()
+                                        .map(i -> new CreateRoutineCommand.Item(
+                                                i.position(), UUID.fromString(i.exerciseId()), i.repetitionType(), i.repetitions()))
+                                        .toList()))
+                        .toList());
     }
 
     @Test
@@ -89,7 +98,7 @@ class RoutineControllerTest {
     public void addRoutine_exerciseDoesNotExist_returns404() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
         doAnswer((invocation) -> {
-            throw new ExerciseNotFoundException(new EntityId(UUID.fromString(routine.exerciseIds().getFirst())));
+            throw new ExerciseNotFoundException(new EntityId(UUID.fromString(routine.blocks().getFirst().items().getFirst().exerciseId())));
         }).when(routineService)
                 .createRoutine(toCommand(routine));
 
@@ -142,18 +151,23 @@ class RoutineControllerTest {
     public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
         String routineName = RandomData.shortString();
         RoutineDetailResult details = RoutineFactory.createRoutineDetailResult();
+        RoutineBlockResult block = details.blocks().getFirst();
+        RoutineBlockItemResult item = block.items().getFirst();
 
         when(routineService.loadRoutine(routineName)).thenReturn(details);
 
         mvc.perform(get(buildUrl(endpointUrl, routineName, "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.exercises", hasSize(2)))
-                .andExpect(jsonPath("$.exercises[0].id").value(details.exercises().getFirst().id()))
-                .andExpect(jsonPath("$.exercises[0].name").value(details.exercises().getFirst().name()))
-                .andExpect(jsonPath("$.repetitions", hasSize(2)))
-                .andExpect(jsonPath("$.repetitions[0].number").value(details.repetitions().getFirst().number()))
-                .andExpect(jsonPath("$.repetitions[0].type").value(details.repetitions().getFirst().type()));
+                .andExpect(jsonPath("$.blocks", hasSize(1)))
+                .andExpect(jsonPath("$.blocks[0].position").value(block.position()))
+                .andExpect(jsonPath("$.blocks[0].rounds").value(block.rounds()))
+                .andExpect(jsonPath("$.blocks[0].items", hasSize(2)))
+                .andExpect(jsonPath("$.blocks[0].items[0].position").value(item.position()))
+                .andExpect(jsonPath("$.blocks[0].items[0].exercise.id").value(item.exercise().id()))
+                .andExpect(jsonPath("$.blocks[0].items[0].exercise.name").value(item.exercise().name()))
+                .andExpect(jsonPath("$.blocks[0].items[0].repetition.number").value(item.repetition().number()))
+                .andExpect(jsonPath("$.blocks[0].items[0].repetition.type").value(item.repetition().type()));
     }
 
     @Test

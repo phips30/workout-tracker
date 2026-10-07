@@ -34,10 +34,11 @@ The app's architecture is designed to be modular, scalable, and maintainable.
 The backend is written purely in Java, with a focus on separation of concerns and clear layering. 
 The architecture consists of the following layers:
 
- - Domain Layer: This layer represents the business logic of the app, where the core domain models and behaviors are defined.
- - Application Layer: This layer acts as an interface between the domain layer and the infrastructure layer, defining the use cases and interactions.
- - Infrastructure Layer: This layer is responsible for data storage and retrieval. Currently, data is stored in simple JSON files.
- - Interface Layer: This layer provides the RESTful API interface to the app, built using Spring Boot.
+ - Domain Layer: Core domain models, value objects, domain services and the repository interfaces (ports). It has no dependency on any other layer or framework.
+ - Application Layer: The use cases (`ExerciseService`, `RoutineService`, `WorkoutService`) that orchestrate the domain. It depends on the domain only.
+ - Infrastructure Layer: Adapters and framework code: the RESTful API built with Spring Boot, the JSON file persistence implementing the repository ports, and the wiring of the use cases.
+
+Dependencies only point inward (infrastructure -> application -> domain). See [documentation/architecture.md](documentation/architecture.md) for details.
 
 **Technology Stack**
 

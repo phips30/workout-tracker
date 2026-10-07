@@ -3,7 +3,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
-import com.phips30.workouttracker.workout.domain.usecase.WorkoutService;
+import com.phips30.workouttracker.workout.application.usecase.WorkoutService;
 import com.phips30.workouttracker.workout.domain.valueobjects.Round;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewWorkoutRequest;

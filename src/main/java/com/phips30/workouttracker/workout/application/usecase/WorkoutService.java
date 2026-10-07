@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.domain.usecase;
+package com.phips30.workouttracker.workout.application.usecase;
 
 import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;

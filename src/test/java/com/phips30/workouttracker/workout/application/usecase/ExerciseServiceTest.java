@@ -1,4 +1,4 @@
-package com.phips30.workouttracker.workout.domain.usecase;
+package com.phips30.workouttracker.workout.application.usecase;
 
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;

@@ -3,9 +3,9 @@ package com.phips30.workouttracker.workout.infrastructure.configuration;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
-import com.phips30.workouttracker.workout.domain.usecase.ExerciseService;
-import com.phips30.workouttracker.workout.domain.usecase.RoutineService;
-import com.phips30.workouttracker.workout.domain.usecase.WorkoutService;
+import com.phips30.workouttracker.workout.application.usecase.ExerciseService;
+import com.phips30.workouttracker.workout.application.usecase.RoutineService;
+import com.phips30.workouttracker.workout.application.usecase.WorkoutService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

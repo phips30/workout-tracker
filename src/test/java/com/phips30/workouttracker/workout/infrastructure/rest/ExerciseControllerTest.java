@@ -3,7 +3,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.ExerciseFactory;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
-import com.phips30.workouttracker.workout.domain.usecase.ExerciseService;
+import com.phips30.workouttracker.workout.application.usecase.ExerciseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

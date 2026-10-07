@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
-import com.phips30.workouttracker.workout.domain.usecase.ExerciseService;
+import com.phips30.workouttracker.workout.application.usecase.ExerciseService;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.ExerciseResponse;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
-import com.phips30.workouttracker.workout.domain.usecase.WorkoutService;
+import com.phips30.workouttracker.workout.application.usecase.WorkoutService;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewWorkoutRequest;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.WorkoutResponse;
 import org.springframework.http.ResponseEntity;

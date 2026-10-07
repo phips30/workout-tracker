@@ -1,12 +1,13 @@
 package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phips30.workouttracker.workout.domain.entity.Workout;
-import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
+import com.phips30.workouttracker.workout.application.command.CreateWorkoutCommand;
+import com.phips30.workouttracker.workout.application.result.WorkoutResult;
 import com.phips30.workouttracker.workout.application.usecase.WorkoutService;
-import com.phips30.workouttracker.workout.domain.valueobjects.Round;
+import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewWorkoutRequest;
+import com.phips30.workouttracker.workout.infrastructure.rest.dto.RoundRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.phips30.workouttracker.RandomData.shortString;
 import static com.phips30.workouttracker.UrlBuilder.buildUrl;
@@ -42,20 +44,18 @@ class WorkoutControllerTest {
     String routineName = shortString();
     String endpointUrl = "/api/routine/%s/workout";
 
-    private String generateUrl(String url, String value) {
-        return String.format(url, value);
-    }
+    private final LocalDateTime startedAt = LocalDateTime.now();
 
-
-    Workout workout = Workout.of(
-            LocalDateTime.now(),
-            List.of(new Round(Duration.ofMinutes(10))),
+    WorkoutResult workout = new WorkoutResult(
+            UUID.randomUUID().toString(),
+            startedAt,
+            List.of(Duration.ofMinutes(10)),
             Map.of()
     );
 
     NewWorkoutRequest newWorkoutRequest = new NewWorkoutRequest(
-            LocalDateTime.now(),
-            List.of(new Round(Duration.ofMinutes(10))),
+            startedAt,
+            List.of(new RoundRequest(Duration.ofMinutes(10))),
             Map.of());
 
     @Test
@@ -66,14 +66,18 @@ class WorkoutControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("location"));
 
-        verify(workoutService).saveWorkout(eq(routineName), any(Workout.class));
+        verify(workoutService).saveWorkout(new CreateWorkoutCommand(
+                routineName,
+                startedAt,
+                List.of(Duration.ofMinutes(10)),
+                Map.of()));
     }
 
     @Test
     public void addWorkout_routineDoesnNotExist_returns400() throws Exception {
         doThrow(new RoutineNotFoundException(new RoutineName(routineName)))
                 .when(workoutService)
-                .saveWorkout(eq(routineName), any());
+                .saveWorkout(any());
 
         mvc.perform(post(buildUrl(endpointUrl, routineName))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,14 +87,29 @@ class WorkoutControllerTest {
     }
 
     @Test
+    public void addWorkout_routineNotFound_returns404() throws Exception {
+        doThrow(new RoutineNotFoundException(new RoutineName(routineName)))
+                .when(workoutService)
+                .saveWorkout(any());
+
+        mvc.perform(post(buildUrl(endpointUrl, routineName))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newWorkoutRequest))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void getWorkouts_workoutsFetchedProperly_returnsWorkoutsAnd200() throws Exception {
-        List<Workout> workouts = List.of(workout);
+        List<WorkoutResult> workouts = List.of(workout);
 
         when(workoutService.loadWorkoutsForRoutine(routineName)).thenReturn(workouts);
 
         mvc.perform(get(buildUrl(endpointUrl, routineName)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(workout.id()))
+                .andExpect(jsonPath("$[0].roundDuration[0]").value(Duration.ofMinutes(10).toMillis()));
 
         verify(workoutService).loadWorkoutsForRoutine(routineName);
     }

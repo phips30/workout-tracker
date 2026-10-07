@@ -3,10 +3,12 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.RoutineFactory;
-import com.phips30.workouttracker.workout.domain.entity.Routine;
+import com.phips30.workouttracker.workout.application.command.CreateRoutineCommand;
+import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
+import com.phips30.workouttracker.workout.application.result.RoutineResult;
+import com.phips30.workouttracker.workout.application.usecase.RoutineService;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
-import com.phips30.workouttracker.workout.application.usecase.RoutineService;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 import com.phips30.workouttracker.workout.infrastructure.rest.dto.NewRoutineRequest;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import static com.phips30.workouttracker.UrlBuilder.buildUrl;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -43,6 +46,14 @@ class RoutineControllerTest {
     @MockitoBean
     private RoutineService routineService;
 
+    private CreateRoutineCommand toCommand(NewRoutineRequest routine) {
+        return new CreateRoutineCommand(
+                routine.name(),
+                routine.routineType(),
+                routine.exerciseIds().stream().map(UUID::fromString).toList(),
+                routine.repetitions());
+    }
+
     @Test
     public void addRoutine_doesNotExist_addedToDatabase_returns201() throws Exception {
         NewRoutineRequest routine = RoutineFactory.createNewRoutineRequest();
@@ -51,6 +62,8 @@ class RoutineControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(routine)))
                 .andExpect(status().isCreated());
+
+        verify(routineService).createRoutine(toCommand(routine));
     }
 
     @Test
@@ -59,8 +72,7 @@ class RoutineControllerTest {
         doAnswer((invocation) -> {
             throw new RoutineAlreadyExistsException(new RoutineName(routine.name()));
         }).when(routineService)
-                .createRoutine(routine.name(), routine.routineType(),
-                        routine.exerciseIds().stream().map(UUID::fromString).toList(), routine.repetitions());
+                .createRoutine(toCommand(routine));
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +90,7 @@ class RoutineControllerTest {
         doAnswer((invocation) -> {
             throw new Exception(errorString);
         }).when(routineService)
-                .createRoutine(any(), any(), any(), any());
+                .createRoutine(any());
 
         mvc.perform(post(endpointUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,9 +103,9 @@ class RoutineControllerTest {
 
     @Test
     public void getRoutines_routinesFetchedProperly_returnsRoutinesAnd200() throws Exception {
-        List<Routine> routines = List.of(
-                RoutineFactory.createRoutine().build(),
-                RoutineFactory.createRoutine().build());
+        List<RoutineResult> routines = List.of(
+                RoutineFactory.createRoutineResult(),
+                RoutineFactory.createRoutineResult());
 
         when(routineService.loadRoutines()).thenReturn(routines);
 
@@ -101,34 +113,38 @@ class RoutineControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].name").value(routines.getFirst().getName().getValue()))
-                .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().getRoutineType().toString()))
-                .andExpect(jsonPath("$[1].name").value(routines.getLast().getName().getValue()))
-                .andExpect(jsonPath("$[1].routineType").value(routines.getLast().getRoutineType().toString()));
+                .andExpect(jsonPath("$[0].name").value(routines.getFirst().name()))
+                .andExpect(jsonPath("$[0].routineType").value(routines.getFirst().routineType()))
+                .andExpect(jsonPath("$[1].name").value(routines.getLast().name()))
+                .andExpect(jsonPath("$[1].routineType").value(routines.getLast().routineType()));
     }
 
     @Test
     public void getRoutineDetails_routineDetailsFetchedProperly_returnsDetailsAnd200() throws Exception {
-        Routine routine = RoutineFactory.createRoutine().build();
+        String routineName = RandomData.shortString();
+        RoutineDetailResult details = RoutineFactory.createRoutineDetailResult();
 
-        when(routineService.loadRoutine(routine.getName()))
-                .thenReturn(routine);
+        when(routineService.loadRoutine(routineName)).thenReturn(details);
 
-        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routineName, "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exercises", hasSize(2)))
-                .andExpect(jsonPath("$.repetitions", hasSize(2)));
+                .andExpect(jsonPath("$.exercises[0].id").value(details.exercises().getFirst().id()))
+                .andExpect(jsonPath("$.exercises[0].name").value(details.exercises().getFirst().name()))
+                .andExpect(jsonPath("$.repetitions", hasSize(2)))
+                .andExpect(jsonPath("$.repetitions[0].number").value(details.repetitions().getFirst().number()))
+                .andExpect(jsonPath("$.repetitions[0].type").value(details.repetitions().getFirst().type()));
     }
 
     @Test
     public void getRoutine_notFound_returns404() throws Exception {
-        Routine routine = RoutineFactory.createRoutine().build();
+        String routineName = RandomData.shortString();
         doAnswer((invocation) -> {
-            throw new RoutineNotFoundException(routine.getName());
-        }).when(routineService).loadRoutine(routine.getName());
+            throw new RoutineNotFoundException(new RoutineName(routineName));
+        }).when(routineService).loadRoutine(routineName);
 
-        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routineName, "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())
@@ -138,12 +154,12 @@ class RoutineControllerTest {
     @Test
     public void getRoutine_causesServerError_returns500() throws Exception {
         String errorString = RandomData.shortString();
-        Routine routine = RoutineFactory.createRoutine().build();
+        String routineName = RandomData.shortString();
         doAnswer((invocation) -> {
             throw new Exception(errorString);
-        }).when(routineService).loadRoutine(routine.getName());
+        }).when(routineService).loadRoutine(routineName);
 
-        mvc.perform(get(buildUrl(endpointUrl, routine.getName().getValue(), "detail"))
+        mvc.perform(get(buildUrl(endpointUrl, routineName, "detail"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.dateTime").isNotEmpty())

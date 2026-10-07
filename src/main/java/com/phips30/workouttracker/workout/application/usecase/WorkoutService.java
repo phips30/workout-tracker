@@ -1,9 +1,13 @@
 package com.phips30.workouttracker.workout.application.usecase;
 
+import com.phips30.workouttracker.workout.application.command.CreateWorkoutCommand;
+import com.phips30.workouttracker.workout.application.result.WorkoutResult;
+import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.Workout;
 import com.phips30.workouttracker.workout.domain.exceptions.RoutineNotFoundException;
 import com.phips30.workouttracker.workout.domain.repository.RoutineRepository;
 import com.phips30.workouttracker.workout.domain.repository.WorkoutRepository;
+import com.phips30.workouttracker.workout.domain.valueobjects.Round;
 import com.phips30.workouttracker.workout.domain.valueobjects.RoutineName;
 
 import java.util.ArrayList;
@@ -19,17 +23,20 @@ public class WorkoutService {
         this.workoutRepository = workoutRepository;
     }
 
-    public void saveWorkout(String routineName, Workout workout) throws RoutineNotFoundException {
-        if (workout == null) {
-            throw new NullPointerException("Workout cannot be null");
-        }
+    public void saveWorkout(CreateWorkoutCommand command) throws RoutineNotFoundException {
+        RoutineName routineName = new RoutineName(command.routineName());
+        Routine routine = routineRepository.loadRoutine(routineName)
+                .orElseThrow(() -> new RoutineNotFoundException(routineName));
 
-        routineRepository.loadRoutine(new RoutineName(routineName))
-                .map(r -> workoutRepository.save(r, workout))
-                .orElseThrow(() -> new RoutineNotFoundException(new RoutineName(routineName)));
+        Workout workout = Workout.of(
+                command.startedAt(),
+                command.roundDurations().stream().map(Round::new).toList(),
+                command.metadata());
+
+        workoutRepository.save(routine, workout);
     }
 
-    public List<Workout> loadWorkoutsForRoutine(String routineName) {
+    public List<WorkoutResult> loadWorkoutsForRoutine(String routineName) {
         return new ArrayList<>();
     }
 }

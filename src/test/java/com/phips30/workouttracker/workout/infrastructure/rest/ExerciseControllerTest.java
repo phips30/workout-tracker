@@ -2,7 +2,7 @@ package com.phips30.workouttracker.workout.infrastructure.rest;
 
 import com.phips30.workouttracker.RandomData;
 import com.phips30.workouttracker.workout.TestDataGenerator.ExerciseFactory;
-import com.phips30.workouttracker.workout.domain.entity.Exercise;
+import com.phips30.workouttracker.workout.application.result.ExerciseResult;
 import com.phips30.workouttracker.workout.application.usecase.ExerciseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +47,9 @@ class ExerciseControllerTest {
 
     @Test
     public void getExercises_exercisesFetchedProperly_returnsExercisesAnd200() throws Exception {
-        List<Exercise> exercises = List.of(
-                ExerciseFactory.createExercise().build(),
-                ExerciseFactory.createExercise().build());
+        List<ExerciseResult> exercises = List.of(
+                ExerciseFactory.createExerciseResult(),
+                ExerciseFactory.createExerciseResult());
 
         when(exerciseService.loadAll()).thenReturn(exercises);
 
@@ -57,10 +57,10 @@ class ExerciseControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(exercises.getFirst().getId().getId().toString()))
-                .andExpect(jsonPath("$[0].name").value(exercises.getFirst().getName().toString()))
-                .andExpect(jsonPath("$[1].id").value(exercises.getLast().getId().getId().toString()))
-                .andExpect(jsonPath("$[1].name").value(exercises.getLast().getName().toString()));
+                .andExpect(jsonPath("$[0].id").value(exercises.getFirst().id()))
+                .andExpect(jsonPath("$[0].name").value(exercises.getFirst().name()))
+                .andExpect(jsonPath("$[1].id").value(exercises.getLast().id()))
+                .andExpect(jsonPath("$[1].name").value(exercises.getLast().name()));
     }
 
 }

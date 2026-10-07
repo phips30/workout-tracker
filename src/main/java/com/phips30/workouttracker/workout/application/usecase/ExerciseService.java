@@ -1,12 +1,12 @@
 package com.phips30.workouttracker.workout.application.usecase;
 
+import com.phips30.workouttracker.workout.application.result.ExerciseResult;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.exceptions.ExerciseAlreadyExistsException;
 import com.phips30.workouttracker.workout.domain.repository.ExerciseRepository;
 import com.phips30.workouttracker.workout.domain.valueobjects.ExerciseName;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ExerciseService {
 
@@ -16,18 +16,17 @@ public class ExerciseService {
         this.exerciseRepository = exerciseRepository;
     }
 
-    public Exercise create(String name) throws ExerciseAlreadyExistsException {
+    public ExerciseResult create(String name) throws ExerciseAlreadyExistsException {
         if (exerciseRepository.exists(name)) {
             throw new ExerciseAlreadyExistsException(name);
         }
-        return exerciseRepository.save(new Exercise(new ExerciseName(name)));
+        Exercise savedExercise = exerciseRepository.save(new Exercise(new ExerciseName(name)));
+        return ExerciseResult.from(savedExercise);
     }
 
-    public List<Exercise> loadAll() {
-        return exerciseRepository.loadAll();
-    }
-
-    public List<Exercise> loadByIds(List<UUID> exerciseIds) {
-        return exerciseRepository.loadByIds(exerciseIds);
+    public List<ExerciseResult> loadAll() {
+        return exerciseRepository.loadAll().stream()
+                .map(ExerciseResult::from)
+                .toList();
     }
 }

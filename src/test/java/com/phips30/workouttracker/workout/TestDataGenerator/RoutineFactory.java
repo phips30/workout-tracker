@@ -1,6 +1,9 @@
 package com.phips30.workouttracker.workout.TestDataGenerator;
 
 import com.phips30.workouttracker.RandomData;
+import com.phips30.workouttracker.workout.application.result.RepetitionResult;
+import com.phips30.workouttracker.workout.application.result.RoutineDetailResult;
+import com.phips30.workouttracker.workout.application.result.RoutineResult;
 import com.phips30.workouttracker.workout.domain.entity.Exercise;
 import com.phips30.workouttracker.workout.domain.entity.Routine;
 import com.phips30.workouttracker.workout.domain.entity.RoutineType;
@@ -26,9 +29,21 @@ public class RoutineFactory {
     public static NewRoutineRequest createNewRoutineRequest(List<String> exerciseIds, List<Integer> repetitions) {
         return new NewRoutineRequest(
                 RandomData.shortString(),
-                RoutineType.AMRAP,
+                RoutineType.AMRAP.name(),
                 exerciseIds,
                 repetitions
+        );
+    }
+
+    public static RoutineResult createRoutineResult() {
+        return new RoutineResult(RandomData.shortString(), RoutineType.AMRAP.name());
+    }
+
+    public static RoutineDetailResult createRoutineDetailResult() {
+        return new RoutineDetailResult(
+                List.of(ExerciseFactory.createExerciseResult(), ExerciseFactory.createExerciseResult()),
+                List.of(new RepetitionResult("NUMBER", RandomData.positiveDigit()),
+                        new RepetitionResult("NUMBER", RandomData.positiveDigit()))
         );
     }
 

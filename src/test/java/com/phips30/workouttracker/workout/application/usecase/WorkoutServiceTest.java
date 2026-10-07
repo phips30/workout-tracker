@@ -57,8 +57,9 @@ class WorkoutServiceTest {
         workoutService.saveWorkout(createCommand());
 
         ArgumentCaptor<Workout> captor = ArgumentCaptor.forClass(Workout.class);
-        verify(workoutRepository).save(org.mockito.ArgumentMatchers.eq(routine), captor.capture());
+        verify(workoutRepository).save(captor.capture());
         Workout saved = captor.getValue();
+        assertEquals(routine.getId(), saved.getRoutineId());
         assertEquals(startedAt, saved.getStartedAt());
         assertEquals(startedAt.plusMinutes(15), saved.getCompletedAt());
         assertEquals(2, saved.getRounds().size());
@@ -73,7 +74,7 @@ class WorkoutServiceTest {
                 assertThrows(RoutineNotFoundException.class, () -> workoutService.saveWorkout(createCommand()));
 
         assertEquals(String.format("Routine %s does not exist", routineName), exception.getMessage());
-        verify(workoutRepository, never()).save(any(), any());
+        verify(workoutRepository, never()).save(any());
     }
 
     @Test
@@ -83,6 +84,6 @@ class WorkoutServiceTest {
         CreateWorkoutCommand command = new CreateWorkoutCommand(routineName, startedAt, List.of(), Map.of());
 
         assertThrows(IllegalArgumentException.class, () -> workoutService.saveWorkout(command));
-        verify(workoutRepository, never()).save(any(), any());
+        verify(workoutRepository, never()).save(any());
     }
 }

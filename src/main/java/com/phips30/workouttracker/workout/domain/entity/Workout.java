@@ -7,6 +7,8 @@ import com.phips30.workouttracker.workout.domain.valueobjects.Round;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +17,19 @@ import java.util.Map;
  */
 public class Workout {
     private final EntityId id;
+    private final EntityId routineId;
     private final LocalDateTime startedAt;
     private final LocalDateTime completedAt;
     private final List<Round> rounds;
     private final Map<String, Object> metadata;
 
-    private Workout(EntityId id, LocalDateTime startedAt, List<Round> rounds, Map<String, Object> metadata) {
+    private Workout(EntityId id,
+                    EntityId routineId,
+                    LocalDateTime startedAt,
+                    List<Round> rounds,
+                    Map<String, Object> metadata) {
         AssertionHelper.assertNotNull(id, "Entity id is null");
+        AssertionHelper.assertNotNull(routineId, "Routine id is null");
         if (startedAt == null) {
             throw new IllegalArgumentException("StartedAt is empty");
         }
@@ -30,16 +38,28 @@ public class Workout {
         }
 
         this.id = id;
+        this.routineId = routineId;
         this.startedAt = startedAt;
-        this.rounds = rounds;
-        this.metadata = metadata;
+        this.rounds = List.copyOf(rounds);
+        this.metadata = metadata == null
+                ? Map.of()
+                : Collections.unmodifiableMap(new HashMap<>(metadata));
         this.completedAt = startedAt.plus(getTotalDuration());
     }
 
-    public static Workout of(LocalDateTime startedAt,
+    public static Workout createNew(EntityId routineId,
+                                    LocalDateTime startedAt,
+                                    List<Round> rounds,
+                                    Map<String, Object> metadata) {
+        return new Workout(EntityId.generate(), routineId, startedAt, rounds, metadata);
+    }
+
+    public static Workout of(EntityId id,
+                             EntityId routineId,
+                             LocalDateTime startedAt,
                              List<Round> rounds,
                              Map<String, Object> metadata) {
-        return new Workout(EntityId.generate(), startedAt, rounds, metadata);
+        return new Workout(id, routineId, startedAt, rounds, metadata);
     }
 
     private Duration getTotalDuration() {
@@ -49,6 +69,10 @@ public class Workout {
 
     public EntityId getId() {
         return id;
+    }
+
+    public EntityId getRoutineId() {
+        return routineId;
     }
 
     public LocalDateTime getStartedAt() {
@@ -65,5 +89,30 @@ public class Workout {
 
     public Map<String, Object> getMetadata() {
         return metadata;
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        boolean equalObjects = false;
+
+        if (otherObject != null && this.getClass() == otherObject.getClass()) {
+            Workout workout = (Workout) otherObject;
+            equalObjects = this.id.equals(workout.id);
+        }
+        return equalObjects;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Workout{" +
+                "id=" + id +
+                ", routineId=" + routineId +
+                ", startedAt=" + startedAt +
+                '}';
     }
 }

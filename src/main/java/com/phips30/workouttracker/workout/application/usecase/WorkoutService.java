@@ -28,12 +28,13 @@ public class WorkoutService {
         Routine routine = routineRepository.loadRoutine(routineName)
                 .orElseThrow(() -> new RoutineNotFoundException(routineName));
 
-        Workout workout = Workout.of(
+        Workout workout = Workout.createNew(
+                routine.getId(),
                 command.startedAt(),
                 command.roundDurations().stream().map(Round::new).toList(),
                 command.metadata());
 
-        workoutRepository.save(routine, workout);
+        workoutRepository.save(workout);
     }
 
     public List<WorkoutResult> loadWorkoutsForRoutine(String routineName) {

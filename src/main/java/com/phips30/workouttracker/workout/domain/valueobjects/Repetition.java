@@ -1,31 +1,56 @@
 package com.phips30.workouttracker.workout.domain.valueobjects;
 
-public class Repetition {
-    private static String NUMBER_TYPE = "NUMBER";
+import com.phips30.workouttracker.workout.domain.util.AssertionHelper;
 
-    private int number;
-    private String type = NUMBER_TYPE; // Can either be seconds or number
+import java.util.Objects;
 
-    private Repetition(int number) {
-        this.setNumber(number);
-    }
+public final class Repetition {
+    private final RepetitionType type;
+    private final int number;
 
-    public static Repetition of(int number) {
-        return new Repetition(number);
-    }
-
-    public void setNumber(int number) {
-        if(number <= 0) {
+    private Repetition(RepetitionType type, int number) {
+        AssertionHelper.assertNotNull(type, "RepetitionType is null");
+        if (number <= 0) {
             throw new IllegalArgumentException("Number must be greater or equal to 1");
         }
+        this.type = type;
         this.number = number;
     }
 
-    public String getType() {
+    public static Repetition of(int number) {
+        return new Repetition(RepetitionType.NUMBER, number);
+    }
+
+    public static Repetition of(RepetitionType type, int number) {
+        return new Repetition(type, number);
+    }
+
+    public RepetitionType getType() {
         return type;
     }
 
     public int getNumber() {
         return number;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Repetition that = (Repetition) o;
+        return number == that.number && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, number);
+    }
+
+    @Override
+    public String toString() {
+        return "Repetition{" +
+                "type=" + type +
+                ", number=" + number +
+                '}';
     }
 }

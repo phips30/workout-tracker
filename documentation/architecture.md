@@ -13,8 +13,8 @@ Base package: `com.phips30.workouttracker.workout`
 ### domain
 Business model and rules. No dependency on Spring, Jackson or any other layer.
 
-- `entity`: aggregates and entities (`Routine`, `Workout`, `Exercise`)
-- `valueobjects`: immutable, self-validating types (`EntityId`, `RoutineName`, `ExerciseName`, `Repetition`, `Round`)
+- `entity`: aggregates and entities (`Routine`, `Workout`, `Exercise`). Aggregates are created with `createNew(...)` (generates an id) or reconstituted from storage with `of(id, ...)`, and never expose mutable collections. A `Workout` references its `Routine` by `routineId`.
+- `valueobjects`: immutable, self-validating types (`EntityId`, `RoutineName`, `ExerciseName`, `Repetition`, `RepetitionType`, `Round`). Value objects are final, immutable and implement `equals`/`hashCode`.
 - `repository`: repository interfaces (ports) implemented by infrastructure
 - `service`: domain services that enforce business rules needing repository access: `ExerciseFactory` (exercise names are unique) and `RoutineFactory` (routine names are unique, every referenced exercise exists)
 - `exceptions`: domain exceptions

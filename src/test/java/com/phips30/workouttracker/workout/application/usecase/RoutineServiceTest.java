@@ -140,7 +140,7 @@ class RoutineServiceTest {
         assertEquals(routine.getExercises().getFirst().getName().getValue(), details.exercises().getFirst().name());
         assertEquals(2, details.repetitions().size());
         assertEquals(routine.getRepetitions().getFirst().getNumber(), details.repetitions().getFirst().number());
-        assertEquals(routine.getRepetitions().getFirst().getType(), details.repetitions().getFirst().type());
+        assertEquals(routine.getRepetitions().getFirst().getType().name(), details.repetitions().getFirst().type());
     }
 
     @Test

@@ -16,7 +16,7 @@ public class WorkoutRepositoryImpl implements WorkoutRepository {
     }
 
     @Override
-    public Workout save(Routine routine, Workout workout) {
+    public Workout save(Workout workout) {
         return null;
     }
 }
